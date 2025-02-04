@@ -1,0 +1,40 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { {{pascalCase db}}, Prisma } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+
+import { IRepo{{pascalCase db}} } from './repo-{{db}}';
+
+export class Prisma{{pascalCase db}} implements IRepo{{pascalCase db}} {
+  public async create(data: ): Promise<{{pascalCase db}}> {
+    const create = await prisma.{{db}}.create({data})
+
+    return create
+  }
+
+  public async findById(id: string): Promise<{{pascalCase db}} | null> {
+      const list = await prisma.{{db}}.findUnique({ where: { id } });
+    
+      return list;
+  }
+
+    public async update(data: ): Promise<{{pascalCase db}} | null> {
+      const list = await prisma.{{db}}.update({ where: { id }, data });
+    
+      return list;
+  }
+
+
+  public async delete(id: string): Promise<{{pascalCase db}} | null> {
+      const list = await prisma.{{db}}.findUnique({ where: { id } });
+    
+      return list;
+  }
+
+
+  public async listall(): Promise<{{pascalCase db}}[]> {
+    const list = await prisma.{{db}}.findMany()
+
+    return list
+
+  }
+}

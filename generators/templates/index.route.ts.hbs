@@ -1,0 +1,13 @@
+import { Router } from 'express';
+import { Auth } from '@shared/midle/Auth';
+
+
+import { {{vm}} } from './{{vm}}';
+
+const {{model}}Route = Router();
+
+{{model}}Route.use(Auth)
+
+{{model}}Route.use('/{{vm}}', {{vm}});
+
+export { {{model}}Route };

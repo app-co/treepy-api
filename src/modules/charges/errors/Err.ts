@@ -1,0 +1,10 @@
+export class Err {
+  public readonly error: string;
+
+  public readonly statusCode: number;
+
+  constructor(error: string, statusCode = 409) {
+    this.error = error;
+    this.statusCode = statusCode;
+  }
+}
