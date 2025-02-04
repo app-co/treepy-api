@@ -1,4 +1,0 @@
--- AlterTable
-ALTER TABLE "User" ALTER COLUMN "cpf" DROP NOT NULL,
-ALTER COLUMN "phone_area" DROP NOT NULL,
-ALTER COLUMN "phone_number" DROP NOT NULL;

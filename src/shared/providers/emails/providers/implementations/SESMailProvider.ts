@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import mail from '@/config/mail';
 import aws from 'aws-sdk';
+
 import nodemailer, { Transporter } from 'nodemailer';
 
 import { IMailTemplateProvider } from '../../templates/models/IMailTemplateProvider';
 import { ISendMailDTO } from '../dtos/ISendMailDTO';
 import { IMailProvider } from '../models/IMailProvider';
+
 
 export default class SESMailProvider implements IMailProvider {
   private client: Transporter;
