@@ -1,35 +1,16 @@
-import { Service } from '@modules/payment/service';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { ServicePayment } from './service';
 
-const make = new Service()
+const make = new ServicePayment()
 
 export class Controller {
-async register(req: FastifyRequest, res: FastifyReply) {
-const schema = req.body
-const rs = await make.register(schema);
+  async register(req: FastifyRequest, res: FastifyReply) {
+    const schema = req.body
+    const rs = await make.registerWebhook();
 
-return res.status(201).send(rs);
-}
+    return res.status(201).send(rs);
+  }
 
-async getUser(req: FastifyRequest, res: FastifyReply) {
-const schema = req.body
-const rs = await make.register(schema);
 
-return res.status(201).send(rs);
-}
-
-async getAll(req: FastifyRequest, res: FastifyReply) {
-const schema = req.body
-const rs = await make.register(schema);
-
-return res.status(201).send(rs);
-}
-
-async delete(req: FastifyRequest, res: FastifyReply) {
-const schema = req.body
-const rs = await make.register(schema);
-
-return res.status(201).send(rs);
-}
 
 }

@@ -23,6 +23,8 @@ const envSche = z.object({
   AWS_REGION: z.string(),
   KEY_PIX_SANDBOX: z.string(),
   KEY_PIX: z.string(),
+  WEB_HOOKS_SANDBOX_URL: z.string(),
+  WEB_HOOKS_URL: z.string(),
 });
 
 const _env = envSche.safeParse(process.env);

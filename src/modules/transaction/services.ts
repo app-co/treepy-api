@@ -57,18 +57,31 @@ export class transactionServices {
     if (!valorUnitarioTreepycashe) return
 
     const qntComprTreepycashe = _toTreepycash(item.valorCompra, valorUnitarioTreepycashe?.unid_trepycash)
-    console.log({ qntComprTreepycashe })
 
+    const order = await prisma.transacoesUser.findFirst({ where: { orderId: item.orderId } })
 
-    await prisma.transacoesUser.create({
-      data: {
-        metodo: item.metodo,
-        orderId: item.orderId,
-        userId: item.userId,
-        valo_compra: item.valorCompra,
-        status: 1,
-      }
-    })
+    if (!order) {
+      await prisma.transacoesUser.create({
+        data: {
+          metodo: item.metodo,
+          orderId: item.orderId,
+          userId: item.userId,
+          valo_compra: item.valorCompra,
+          status: 1,
+        }
+      })
+    } else {
+      await prisma.transacoesUser.update({
+        where: { id: order.id },
+        data: {
+          metodo: item.metodo,
+          orderId: item.orderId,
+          userId: item.userId,
+          valo_compra: item.valorCompra,
+          status: 1,
+        }
+      })
+    }
 
     const floresta = await prisma.florestas.findFirst({
       where: {
@@ -199,6 +212,16 @@ export class transactionServices {
     try {
       const payment = await this.payment.pix(obj)
 
+      await prisma.transacoesUser.create({
+        data: {
+          metodo: 'PIX',
+          orderId: payment?.orderId,
+          userId: obj.userId,
+          valo_compra: obj.value,
+          status: 0,
+        }
+      })
+
       return payment
 
     } catch (error) {
@@ -219,8 +242,31 @@ export class transactionServices {
       }
     }
   }
-  async webHooks(obj: any) {
-    console.log(obj)
+  async webHooks(obj: iResponseWeebHook) {
+
+    if (obj.event === 'PAYMENT_CONFIRMED' || obj.event === 'PAYMENT_RECEIVED') {
+      const order = await prisma.transacoesUser.findFirst({ where: { orderId: obj.payment.id } })
+      if (!order) return
+      const dt = {
+        orderId: obj.payment.id,
+        paymentType: "PIX",
+        valorLiquido: obj.payment.netValue,
+        valorBruto: obj.payment.value,
+        status: obj.event
+      }
+
+      await prisma.transacoes.create({
+        data: dt
+      })
+
+      await this.validationTransaction({
+        valorCompra: order.valo_compra,
+        metodo: order.metodo,
+        orderId: order.orderId,
+        userId: order.userId,
+      })
+
+    }
 
     return obj
   }

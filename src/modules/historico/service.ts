@@ -8,6 +8,8 @@ export class HistoricoService {
     const historico = await prisma.historico.create({
       data,
     });
+
+    return historico;
   }
 
   async getUserById(userId: string) {

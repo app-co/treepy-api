@@ -57,6 +57,7 @@ export class ServicePayment {
       return {
         payload: data.payload,
         image: data.encodedImage,
+        orderId: data.id
       };
     } catch (error) {
       if (error instanceof AppError) {
@@ -95,6 +96,62 @@ export class ServicePayment {
     return null;
   }
 
+  async registerWebhook() {
+    const url = env.NODE_ENV === 'tst'
+      ? env.WEB_HOOKS_SANDBOX_URL
+      : env.WEB_HOOKS_URL;
+
+    try {
+      const dt = {
+        name: 'hook',
+        url,
+        email: 'contato@treepy.com.br',
+        enabled: true,
+        interrupted: false,
+        authToken: null,
+        sendType: 'SEQUENTIALLY',
+        events: [
+          'PAYMENT_RECEIVED',
+          'PAYMENT_CONFIRMED',
+          "PAYMENT_CREATED",
+          "PAYMENT_AWAITING_RISK_ANALYSIS",
+          "PAYMENT_APPROVED_BY_RISK_ANALYSIS",
+          "PAYMENT_REPROVED_BY_RISK_ANALYSIS",
+          "PAYMENT_AUTHORIZED",
+          "PAYMENT_UPDATED",
+          "PAYMENT_CONFIRMED",
+          "PAYMENT_RECEIVED",
+          "PAYMENT_CREDIT_CARD_CAPTURE_REFUSED",
+          "PAYMENT_ANTICIPATED",
+          "PAYMENT_OVERDUE",
+          "PAYMENT_DELETED",
+          "PAYMENT_RESTORED",
+          "PAYMENT_REFUNDED",
+          "PAYMENT_PARTIALLY_REFUNDED",
+          "PAYMENT_REFUND_IN_PROGRESS",
+          "PAYMENT_RECEIVED_IN_CASH_UNDONE",
+          "PAYMENT_CHARGEBACK_REQUESTED",
+          "PAYMENT_CHARGEBACK_DISPUTE",
+          "PAYMENT_AWAITING_CHARGEBACK_REVERSAL",
+          "PAYMENT_DUNNING_RECEIVED",
+          "PAYMENT_DUNNING_REQUESTED",
+          "PAYMENT_BANK_SLIP_VIEWED",
+          "PAYMENT_CHECKOUT_VIEWED",
+          "PAYMENT_SPLIT_CANCELLED",
+          "PAYMENT_SPLIT_DIVERGENCE_BLOCK",
+          "PAYMENT_SPLIT_DIVERGENCE_BLOCK_FINISHED",
+        ],
+      };
+
+      const { data } = await api.post('/webhooks', dt);
+
+      return data
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw new AppError(error.error);
+      }
+    }
+  }
 
 
 }
