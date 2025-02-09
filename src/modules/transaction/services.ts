@@ -203,6 +203,9 @@ export class transactionServices {
     await this.payment.pix(obj)
   }
   async pay_boleto(obj: any) { }
+  async webHooks(obj: any) {
+
+  }
 
 
 }
