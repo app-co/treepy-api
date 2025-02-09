@@ -8,4 +8,5 @@ export async function authUser(app: FastifyInstance) {
   app.addHook('onRequest', Auth)
   app.get('/user', controler.getUser)
   app.post('/user/endereco', controler.updateEnd)
+  app.put('/user', controler.updateuser)
 }

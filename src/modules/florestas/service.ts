@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { AppError } from '@/shared/app-error/AppError';
 import RedisCacheProvider from '@/shared/providers/redis/redis-provider';
+import { IFloresta } from './dtos/interfaces';
 import { TCreateFloresta } from './dtos/types';
 
 
@@ -58,14 +59,24 @@ export class ServiceFloresta {
     return floresta
   }
 
+  async byId(florestaId: number) {
+    let floresta = await this.redis.recover<TCreateFloresta>(`${florestaId}:florestas`)
+
+    if (!floresta) {
+      floresta = await prisma.florestas.findUnique({ where: { id: florestaId } });
+      await this.redis.save('florestas', floresta)
+    }
+
+    return floresta
+  }
+
   async listAll() {
-    let florestas = await this.redis.recover('florestas')
+    let florestas = await this.redis.recover<IFloresta[]>('florestas')
 
     if (!florestas) {
       florestas = await prisma.florestas.findMany();
       await this.redis.save('florestas', florestas)
     }
-
     return florestas
   }
 

@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { schemas } from "./dtos/schemas";
 import { make } from "./make";
-import { schemas } from "./mox/schemas";
 
 const service = make()
 

@@ -6,7 +6,6 @@ import cookie from '@fastify/cookie';
 import fastifyJwt from '@fastify/jwt';
 import { AppError } from './shared/app-error/AppError';
 import { Routes } from './shared/routes';
-import cron from 'node-cron'
 
 
 export const app = fastify()
@@ -43,5 +42,7 @@ app.setErrorHandler((error, request, reply) => {
     return reply.status(error.statusCode).send(error);
   }
 
-  return reply.status(500).send('Internal server error');
+  return reply.status(500).send({
+    error: 'Ocorreu um erro inesperado',
+  });
 });

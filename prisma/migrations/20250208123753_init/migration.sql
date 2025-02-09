@@ -16,10 +16,11 @@ CREATE TABLE "Roles" (
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "nome" TEXT NOT NULL,
-    "cpfCnpj" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "senha" TEXT NOT NULL,
-    "cutumerId" TEXT NOT NULL,
+    "cpfCnpj" TEXT,
+    "customerId" TEXT,
+    "photUrl" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -44,17 +45,19 @@ CREATE TABLE "Endereco" (
 );
 
 -- CreateTable
-CREATE TABLE "Floresta" (
+CREATE TABLE "florestas" (
     "id" SERIAL NOT NULL,
     "nome" TEXT NOT NULL,
     "qnt_arvores" INTEGER NOT NULL,
     "treepycash_disponivel" INTEGER NOT NULL,
     "projeto" SERIAL NOT NULL,
-    "codidgo" TEXT NOT NULL,
+    "codigo" TEXT NOT NULL,
+    "lat" TEXT NOT NULL,
+    "long" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Floresta_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "florestas_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -120,20 +123,39 @@ CREATE TABLE "Pagamentos" (
     CONSTRAINT "Pagamentos_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "Roles_userId_key" ON "Roles"("userId");
+-- CreateTable
+CREATE TABLE "cardToken" (
+    "id" SERIAL NOT NULL,
+    "token" TEXT NOT NULL,
+    "creditCardNumber" TEXT NOT NULL,
+    "creditCardBrand" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "cardToken_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_cpfCnpj_key" ON "User"("cpfCnpj");
+CREATE UNIQUE INDEX "Roles_userId_key" ON "Roles"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_cutumerId_key" ON "User"("cutumerId");
+CREATE UNIQUE INDEX "User_cpfCnpj_key" ON "User"("cpfCnpj");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_customerId_key" ON "User"("customerId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Endereco_userId_key" ON "Endereco"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "florestas_projeto_key" ON "florestas"("projeto");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "florestas_codigo_key" ON "florestas"("codigo");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Pagamentos_orderId_key" ON "Pagamentos"("orderId");
@@ -151,10 +173,13 @@ ALTER TABLE "Calculadora" ADD CONSTRAINT "Calculadora_userId_fkey" FOREIGN KEY (
 ALTER TABLE "Treepycaches" ADD CONSTRAINT "Treepycaches_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Treepycaches" ADD CONSTRAINT "Treepycaches_florestaId_fkey" FOREIGN KEY ("florestaId") REFERENCES "Floresta"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Treepycaches" ADD CONSTRAINT "Treepycaches_florestaId_fkey" FOREIGN KEY ("florestaId") REFERENCES "florestas"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Historico" ADD CONSTRAINT "Historico_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Pagamentos" ADD CONSTRAINT "Pagamentos_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "cardToken" ADD CONSTRAINT "cardToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

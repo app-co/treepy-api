@@ -6,9 +6,9 @@ import RedisCacheProvider from '@/shared/providers/redis/redis-provider';
 import { compare, hash } from 'bcryptjs';
 import path from 'path';
 import { HistoricoService } from '../historico/service';
-import { api } from '../transaction/api';
-import { IUser } from './dto/interface';
-import { TEndereco, TLogin, TRegisterUser } from './dto/types';
+import { api } from '../payment/api';
+import { ICustumer, IUser } from './dto/interface';
+import { TEndereco, TLogin, TRegisterUser, TUpdateUser } from './dto/types';
 
 const redis = new RedisCacheProvider()
 
@@ -25,24 +25,32 @@ export class UserService {
       },
     })
 
-    const doc = await prisma.user.findUnique({
-      where: {
-        cpfCnpj: obj.cpfCnpj,
-      },
-    })
+    if (obj.cpfCnpj) {
+      const doc = await prisma.user.findUnique({
+        where: {
+          cpfCnpj: obj.cpfCnpj,
+        },
+      })
 
-    const cpf = _validarCNPJ(obj.cpfCnpj)
-
-    if (obj.cpfCnpj.length > 11) {
-      if (!_validarCNPJ(obj.cpfCnpj)) {
-        throw new AppError('CNPJ inválido')
+      if (doc) {
+        throw new AppError('Documento já cadastrado')
       }
-    }
 
-    if (obj.cpfCnpj.length <= 11) {
-      if (!_validarCPF(obj.cpfCnpj)) {
-        throw new AppError('CPF inválido')
+      const cnpj = _validarCNPJ(obj.cpfCnpj.replace(/\D/g, ''))
+      const cpf = _validarCPF(obj.cpfCnpj)
+
+      if (obj.cpfCnpj.length > 11) {
+        if (!cnpj) {
+          throw new AppError('CNPJ inválido')
+        }
       }
+      //025.784.411-20
+      if (obj.cpfCnpj.length <= 11) {
+        if (!cpf) {
+          throw new AppError('CPF inválido')
+        }
+      }
+
     }
 
 
@@ -50,29 +58,11 @@ export class UserService {
       throw new AppError('E-mail já cadastrado')
     }
 
-    if (doc) {
-      throw new AppError('Documento já cadastrado')
-    }
+
     const pass = await hash(obj.senha, 6)
-    let customerId = ''
-    try {
-      const { data: custumer } = await api.post('/customers', {
-        name: obj.nome,
-        cpfCnpj: obj.cpfCnpj,
-        email: obj.email,
-        mobilePhone: '14991290949'
-      });
-
-      customerId = custumer.id
-
-    } catch (error) {
-      console.log(error)
-      throw new AppError('Error')
-    }
 
     const data = {
       ...obj,
-      customerId,
       senha: pass,
     }
 
@@ -106,6 +96,106 @@ export class UserService {
     });
 
     return 'success'
+  }
+
+  async updateUser(obj: TUpdateUser) {
+    const user = await this.getUserById(obj.id)
+    const findEmail = await prisma.user.findUnique({
+      where: {
+        email: obj.email,
+        NOT: {
+          email: user.email
+        }
+      },
+
+    })
+
+    if (findEmail) {
+      throw new AppError('E-mail já sendo utilizado por outro usuário')
+    }
+
+    if (!user) {
+      throw new AppError('Usuário não encontrado')
+    }
+
+    let pass = user.senha
+
+    if (obj.senha) {
+      pass = await hash(obj.senha, 6)
+    }
+
+    const doc = await prisma.user.findUnique({
+      where: {
+        cpfCnpj: obj.cpfCnpj,
+        NOT: {
+          cpfCnpj: user.cpfCnpj
+        }
+      },
+    })
+
+    if (doc) {
+      throw new AppError('Documento já cadastrado')
+    }
+
+    const cnpj = _validarCNPJ(obj.cpfCnpj.replace(/\D/g, ''))
+    const cpf = _validarCPF(obj.cpfCnpj)
+
+    if (obj.cpfCnpj.length > 11) {
+      if (!cnpj) {
+        throw new AppError('CNPJ inválido')
+      }
+    }
+    if (obj.cpfCnpj.length <= 11) {
+      if (!cpf) {
+        throw new AppError('CPF inválido')
+      }
+    }
+
+    let customer = null
+
+    if (!user?.customerId) {
+      customer = await this.registerCustumer({
+        nome: obj.nome,
+        email: obj.email,
+        cpfCnpj: obj.cpfCnpj!
+      })
+    }
+
+    const update = await prisma.user.update({
+      where: {
+        id: obj.id,
+      },
+      data: {
+        ...obj,
+        senha: pass,
+        customerId: customer?.id,
+      },
+    })
+
+    await redis.invalidatePrefix(obj.id)
+
+
+    return update
+
+  }
+
+  async registerCustumer({ nome, email, cpfCnpj }: { nome: string, email: string, cpfCnpj: string }) {
+    try {
+      const { data: custumer } = await api.post<ICustumer>('/customers', {
+        name: nome,
+        cpfCnpj: cpfCnpj,
+        email: email,
+        mobilePhone: '14991290949'
+      });
+
+      return custumer
+
+    } catch (error) {
+      console.log(error)
+      if (error instanceof AppError) {
+        throw new AppError('Error')
+      }
+    }
   }
 
   async getUserById(userId: string) {

@@ -28,18 +28,19 @@ model Roles {
 model User {
   id         String    @id @default(uuid())
   nome       String
-  cpfCnpj    String    @unique
   email      String    @unique
   senha      String
-  customerId String    @unique
+  cpfCnpj    String?   @unique
+  customerId String?   @unique
   endereco   Endereco?
+  photUrl    String?
 
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
   roles        Roles?
   treepycaches Treepycaches[]
   historico    Historico[]
-  pagamentos   Pagamentos[]
+  pagamentos   transacoesUser[]
   Calculadora  Calculadora[]
   cardToken    cardToken[]
 }
@@ -65,7 +66,7 @@ model florestas {
   id                    Int    @id @default(autoincrement())
   nome                  String
   qnt_arvores           Int
-  treepycash_disponivel Int
+  treepycash_disponivel Float
   projeto               Int    @unique @default(autoincrement())
   codigo                String @unique
   lat                   String
@@ -78,14 +79,14 @@ model florestas {
 }
 
 model Calculadora {
-  id                    Int    @id @default(autoincrement())
-  gas                   String
-  eletricidade          String
-  transporte_individual String
-  transporte_coletivo   String
-  alimentacao           String
-  residuos              String
-  total                 String
+  id                    Int   @id @default(autoincrement())
+  gas                   Float
+  eletricidade          Float
+  transporte_individual Float
+  transporte_coletivo   Float
+  alimentacao           Float
+  residuos              Float
+  total                 Float
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -135,7 +136,7 @@ enum metodo {
 
 // 0 - aguardando; 1 - aprovado; 3 - recusado
 
-model Pagamentos {
+model transacoesUser {
   id          Int    @id @default(autoincrement())
   metodo      metodo
   status      Int
@@ -144,6 +145,15 @@ model Pagamentos {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model transacoes {
+  id           Int    @id @default(autoincrement())
+  orderId      String
+  paymentType  String
+  valorBruto   Float
+  valorLiquido Float
+  status       String
 }
 
 model cardToken {

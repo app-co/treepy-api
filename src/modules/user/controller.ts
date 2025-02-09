@@ -19,6 +19,18 @@ export class Controller {
     return res.status(201).send(rs);
   }
 
+  async updateuser(req: FastifyRequest, res: FastifyReply) {
+    const userId = req.user.sub
+    const schema = schemas.updateUser.parse({
+      ...req.body as any,
+      id: userId
+    });
+
+    const rs = await service.updateUser(schema);
+
+    return res.status(201).send(rs);
+  }
+
   async getAll(req: FastifyRequest, res: FastifyReply) {
 
   }

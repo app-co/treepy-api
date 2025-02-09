@@ -31,3 +31,23 @@ export interface IUser {
     userId: string
   }[]
 }
+
+export interface ICustumer {
+  object: string
+  id: string
+  dateCreated: string
+  name: string
+  email: string
+  phone: string
+  mobilePhone: string
+  address: string
+  addressNumber: string
+  complement: string
+  province: string
+  city: string
+  cityName: string
+  state: string
+  country: string
+  postalCode: string
+  cpfCnpj: string
+}
