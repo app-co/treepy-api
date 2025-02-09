@@ -26,3 +26,8 @@ export type TInfo = {
   creditCardHolderInfo: holderInfo
   remoteIp: string
 }
+
+export type TPixInfo = {
+  value: number
+  userId: string
+}

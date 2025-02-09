@@ -6,7 +6,7 @@ import { IResultCard } from "../payment/dtos/interfaces"
 import { TInfo } from "../payment/dtos/types"
 import { ServicePayment } from "../payment/service"
 import { UserService } from "../user/service"
-import { TCard, TValidationTransaction } from "./dtos/types"
+import { TCard, TPix, TValidationTransaction } from "./dtos/types"
 
 export class transactionServices {
   constructor(
@@ -199,13 +199,8 @@ export class transactionServices {
     }
 
   }
-  async pay_pix(obj: any) {
-    await this.validationTransaction({
-      valorCompra: obj.value,
-      metodo: 'PIX',
-      orderId: '1234567890',
-      userId: obj.userId,
-    })
+  async pay_pix(obj: TPix) {
+    await this.payment.pix(obj)
   }
   async pay_boleto(obj: any) { }
 

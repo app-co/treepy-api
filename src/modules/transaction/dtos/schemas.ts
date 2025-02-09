@@ -11,6 +11,12 @@ const card = z.object({
   history: z.boolean().default(false)
 })
 
+const pix = z.object({
+  value: z.number(),
+  userId: z.string(),
+})
+
 export const schemas = {
-  card
+  card,
+  pix
 }
