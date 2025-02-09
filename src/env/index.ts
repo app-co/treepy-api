@@ -20,7 +20,9 @@ const envSche = z.object({
   NOTIFICATION_URL: z.string(),
   AWS_ACCESS_KEY_ID: z.string(),
   AWS_SECRET_ACCESS_KEY: z.string(),
-  AWS_REGION: z.string()
+  AWS_REGION: z.string(),
+  KEY_PIX_SANDBOX: z.string(),
+  KEY_PIX: z.string(),
 });
 
 const _env = envSche.safeParse(process.env);

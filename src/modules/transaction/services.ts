@@ -136,8 +136,6 @@ export class transactionServices {
 
   async pay_card(obj: TCard) {
     const user = await this.user.getUserById(obj.userId)
-    const getPrice = await prisma.precificacao.findFirst()
-    const price = getPrice?.unid_trepycash
 
     if (!user?.endereco) {
       throw new AppError('Endereço não configurado')
@@ -171,8 +169,6 @@ export class transactionServices {
       remoteIp: ''
     }
 
-
-
     try {
       const pyment = await this.payment.card(info, obj.userId)
 
@@ -190,7 +186,7 @@ export class transactionServices {
 
       return validate
 
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof AppError) {
         throw new AppError(error.error)
       }
@@ -200,11 +196,33 @@ export class transactionServices {
 
   }
   async pay_pix(obj: TPix) {
-    await this.payment.pix(obj)
-  }
-  async pay_boleto(obj: any) { }
-  async webHooks(obj: any) {
+    try {
+      const payment = await this.payment.pix(obj)
 
+      return payment
+
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw new AppError(error.error)
+      }
+    }
+  }
+  async pay_boleto(obj: any) {
+    try {
+      const payment = await this.payment.boleto(obj)
+
+      return payment
+
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw new AppError(error.error)
+      }
+    }
+  }
+  async webHooks(obj: any) {
+    console.log(obj)
+
+    return obj
   }
 
 

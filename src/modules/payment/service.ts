@@ -1,9 +1,10 @@
+import { env } from '@/env';
 import { prisma } from '@/lib/prisma';
 import { AppError } from '@/shared/app-error/AppError';
 import { addDays } from 'date-fns';
 import { api } from './api';
 import { IResultCard } from './dtos/interfaces';
-import { TInfo, TPixInfo } from './dtos/types';
+import { TBoletoInfo, TInfo, TPixInfo } from './dtos/types';
 
 
 export class ServicePayment {
@@ -38,9 +39,13 @@ export class ServicePayment {
   }
 
   async pix({ value, userId }: TPixInfo) {
+    const keyPix = env.NODE_ENV === 'tst'
+      ? env.KEY_PIX_SANDBOX
+      : env.KEY_PIX;
+
     try {
       const dt = {
-        addressKey: 'contato@treepy.com.br',
+        addressKey: keyPix,
         description: 'Compra de TreepyCaches',
         value: value,
         format: 'ALL',
@@ -61,6 +66,35 @@ export class ServicePayment {
 
     return null;
   }
+
+  async boleto({ value, userId, customerId }: TBoletoInfo) {
+    const dt = {
+      customer: customerId,
+      billingType: 'BOLETO',
+      value: value,
+      dueDate: addDays(new Date(), 5),
+    };
+
+    try {
+      const { data } = await api.post('/payments', dt);
+      const barCode = await api.get(`payments/${data.id}/identificationField`);
+
+      const response = {
+        invoiceUrl: data.invoiceUrl,
+        barCode: barCode.data.barCode,
+        id: data.id,
+      };
+
+      return response;
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw new AppError(error.error);
+      }
+    }
+
+    return null;
+  }
+
 
 
 }

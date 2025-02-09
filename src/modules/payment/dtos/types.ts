@@ -31,3 +31,9 @@ export type TPixInfo = {
   value: number
   userId: string
 }
+
+export type TBoletoInfo = {
+  value: number
+  userId: string
+  customerId: string
+}
