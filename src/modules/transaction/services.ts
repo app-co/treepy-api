@@ -183,17 +183,17 @@ export class transactionServices {
     }
 
     try {
-      const pyment = await this.payment.card(info, obj.userId)
+      // const pyment = await this.payment.card(info, obj.userId)
 
-      if (obj.history && pyment) {
-        await this.registerCardToken({ userId: obj.userId, card: pyment })
-        pyment
-      }
+      // if (obj.history && pyment) {
+      //   await this.registerCardToken({ userId: obj.userId, card: pyment })
+      //   pyment
+      // }
 
       const validate = await this.validationTransaction({
         valorCompra: obj.value,
         metodo: 'CARTAO',
-        orderId: pyment!.id,
+        orderId: '005',
         userId: obj.userId,
       })
 
