@@ -53,10 +53,10 @@ export class transactionServices {
 
   private async validationTransaction(item: TValidationTransaction) {
     const valorUnitarioTreepycashe = await prisma.precificacao.findFirst({ select: { unid_trepycash: true } })
-
     if (!valorUnitarioTreepycashe) return
 
     const qntComprTreepycashe = _toTreepycash(item.valorCompra, valorUnitarioTreepycashe?.unid_trepycash)
+    let qntRestanteCompraTreepycashe = qntComprTreepycashe
 
     const order = await prisma.transacoesUser.findFirst({ where: { orderId: item.orderId } })
 
@@ -83,7 +83,7 @@ export class transactionServices {
       })
     }
 
-    const floresta = await prisma.florestas.findFirst({
+    const florestas = await prisma.florestas.findMany({
       where: {
         AND: [
           {
@@ -96,27 +96,37 @@ export class transactionServices {
       }
     })
 
-    if (!floresta) throw new AppError('Sem florestas disponiveis')
+    for (const h of florestas) {
+      if (qntRestanteCompraTreepycashe <= 0) break
+      const tenho = qntRestanteCompraTreepycashe
+      const tree = h.treepycash_disponivel
+      const soma = tree - tenho
+      let sobraTree = 0
+      let restaMi = 10
 
-    const recalculateTreepycash = floresta.treepycash_disponivel - qntComprTreepycashe
-
-    await prisma.florestas.update({
-      where: { id: floresta.id },
-      data: {
-        treepycash_disponivel: recalculateTreepycash
+      if (tenho <= tree) {
+        sobraTree = soma
+        restaMi = 0
       }
-    });
 
-    await prisma.treepycaches.create({
-      data: {
-        userId: item.userId,
-        florestaId: floresta.id,
-        qnt: qntComprTreepycashe,
-        isValid: true,
+      if (tenho >= tree) {
+        sobraTree = 0
+        restaMi = tenho - tree
       }
-    })
 
-    return recalculateTreepycash
+      qntRestanteCompraTreepycashe = restaMi
+
+      await prisma.florestas.update({
+        where: { id: h.id },
+        data: {
+          treepycash_disponivel: Number(sobraTree.toFixed(3))
+        }
+      })
+
+    }
+
+
+    return qntRestanteCompraTreepycashe
 
 
     const oneHourInMilliseconds = 60 * 1000;
@@ -147,6 +157,35 @@ export class transactionServices {
 
   }
 
+  private async validarDisponibilidadeTreepycash(valor: number) {
+    const valorTreepy = await prisma.precificacao.findFirst()
+    const valorEmTreepycash = _toTreepycash(valor, valorTreepy?.unid_trepycash)
+
+
+    const florestas = await prisma.florestas.findMany({
+      where: {
+        AND: [
+          {
+            treepycash_disponivel: { gt: 0 } // maior que ...
+          }
+        ]
+      },
+      orderBy: {
+        projeto: 'asc'
+      }
+    })
+
+    if (florestas.length === 1) {
+      if (florestas[0].treepycash_disponivel < valorEmTreepycash) {
+        throw new AppError(`Há apenas ${florestas[0].treepycash_disponivel} treepycash(s) disponível, tente um valor menor`)
+      }
+    }
+
+    if (florestas.length === 0) {
+      throw new AppError('Nenhuma treepycash disponível para realizar a compra')
+    }
+  }
+
   async pay_card(obj: TCard) {
     const user = await this.user.getUserById(obj.userId)
 
@@ -157,6 +196,8 @@ export class transactionServices {
     if (!user?.customerId) {
       throw new AppError('Customer não encontrado')
     }
+
+
 
     const info: TInfo = {
       customer: user.customerId,
@@ -183,6 +224,7 @@ export class transactionServices {
     }
 
     try {
+      await this.validarDisponibilidadeTreepycash(obj.value)
       // const pyment = await this.payment.card(info, obj.userId)
 
       // if (obj.history && pyment) {
