@@ -145,6 +145,8 @@ model transacoesUser {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
 }
 
 model transacoes {

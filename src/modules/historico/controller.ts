@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { make } from '../user/make';
+import { makeService } from './make';
 
-const service = make()
+const service = makeService()
 
 
 export class Controller {
@@ -12,9 +12,9 @@ export class Controller {
     return res.status(201).send(rs);
   }
 
-  async getUser(req: FastifyRequest, res: FastifyReply) {
-    const schema = req.body
-    const rs = await service.register(schema);
+  async getByUser(req: FastifyRequest, res: FastifyReply) {
+    const userId = req.user.sub
+    const rs = await service.getUserById(userId);
 
     return res.status(201).send(rs);
   }

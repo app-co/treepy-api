@@ -1,5 +1,6 @@
 import { routesCalculadora } from "@/modules/calculadora/routes";
 import { routesFloresta } from "@/modules/florestas/routes";
+import { routesHistorico } from "@/modules/historico/routes";
 import { routesMetrica } from "@/modules/metricas/routes";
 import { routesPayment } from "@/modules/payment/routes";
 import { routeAppTransaction } from "@/modules/transaction/app.routes";
@@ -17,4 +18,5 @@ export async function Routes(app: FastifyInstance) {
   app.register(routesCalculadora)
   app.register(routesMetrica)
   app.register(routesPayment)
+  app.register(routesHistorico)
 }

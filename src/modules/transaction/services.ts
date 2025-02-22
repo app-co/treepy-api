@@ -3,10 +3,10 @@ import { prisma } from "@/lib/prisma"
 import { AppError } from "@/shared/app-error/AppError"
 import { format } from "date-fns"
 import { IResultCard } from "../payment/dtos/interfaces"
-import { TInfo } from "../payment/dtos/types"
+import { TInfo, TPaymentCardToken } from "../payment/dtos/types"
 import { ServicePayment } from "../payment/service"
 import { UserService } from "../user/service"
-import { TCard, TPix, TValidationTransaction } from "./dtos/types"
+import { TCard, TPayCardToken, TPix, TValidationTransaction } from "./dtos/types"
 
 export class transactionServices {
   constructor(
@@ -123,6 +123,15 @@ export class transactionServices {
         }
       })
 
+      await prisma.treepycaches.create({
+        data: {
+          isValid: true,
+          qnt: qntComprTreepycashe,
+          florestaId: h.id,
+          userId: item.userId
+        }
+      })
+
     }
 
 
@@ -225,6 +234,45 @@ export class transactionServices {
 
     try {
       await this.validarDisponibilidadeTreepycash(obj.value)
+      const pyment = await this.payment.card(info, obj.userId)
+
+      if (obj.history && pyment) {
+        await this.registerCardToken({ userId: obj.userId, card: pyment })
+        pyment
+      }
+
+      const validate = await this.validationTransaction({
+        valorCompra: obj.value,
+        metodo: 'CARTAO',
+        orderId: pyment?.id,
+        userId: obj.userId,
+      })
+
+      return validate
+
+    } catch (error: any) {
+      if (error instanceof AppError) {
+        throw new AppError(error.error)
+      }
+
+      throw new Error(error)
+    }
+
+  }
+
+  async pay_cardToken(obj: TPayCardToken) {
+    const user = await this.user.getUserById(obj.userId)
+
+    const info: TPaymentCardToken = {
+      billingType: 'CREDIT_CARD',
+      creditCardToken: obj.creditCardToken,
+      remoteIp: '',
+      customer: user.customerId,
+      dueDate: obj.dueDate
+    }
+
+    try {
+      await this.validarDisponibilidadeTreepycash(obj.value)
       // const pyment = await this.payment.card(info, obj.userId)
 
       // if (obj.history && pyment) {
@@ -276,6 +324,16 @@ export class transactionServices {
     try {
       const payment = await this.payment.boleto(obj)
 
+      await prisma.transacoesUser.create({
+        data: {
+          metodo: 'BOLETO',
+          orderId: payment?.id,
+          userId: obj.userId,
+          valo_compra: obj.value,
+          status: 0,
+        }
+      })
+
       return payment
 
     } catch (error) {
@@ -286,12 +344,13 @@ export class transactionServices {
   }
   async webHooks(obj: iResponseWeebHook) {
 
+
     if (obj.event === 'PAYMENT_CONFIRMED' || obj.event === 'PAYMENT_RECEIVED') {
       const order = await prisma.transacoesUser.findFirst({ where: { orderId: obj.payment.id } })
       if (!order) return
       const dt = {
         orderId: obj.payment.id,
-        paymentType: "PIX",
+        paymentType: obj.payment.id,
         valorLiquido: obj.payment.netValue,
         valorBruto: obj.payment.value,
         status: obj.event
@@ -310,7 +369,7 @@ export class transactionServices {
 
     }
 
-    return obj
+    return { received: true }
   }
 
 

@@ -4,7 +4,7 @@ import { AppError } from '@/shared/app-error/AppError';
 import { addDays } from 'date-fns';
 import { api } from './api';
 import { IResultCard } from './dtos/interfaces';
-import { TBoletoInfo, TInfo, TPixInfo } from './dtos/types';
+import { TBoletoInfo, TInfo, TPaymentCardToken, TPixInfo } from './dtos/types';
 
 
 export class ServicePayment {
@@ -34,8 +34,33 @@ export class ServicePayment {
         throw new AppError(error.error)
       }
     }
+  }
 
+  async payWithToken(obj: TPaymentCardToken) {
+    try {
+      const { data } = await api.post<IResultCard>('/payments', obj);
+      const dt = {
+        orderId: data.id,
+        paymentType: "creditCard",
+        valorLiquido: data.netValue,
+        valorBruto: obj.value,
+        status: data.status
+      }
 
+      await prisma.transacoes.create({
+        data: dt
+      })
+
+      if (data.status === 'CONFIRMED' || data.status === 'RECEIVED') {
+        return data
+      }
+
+    } catch (error) {
+      console.log(error)
+      if (error instanceof AppError) {
+        throw new AppError(error.error)
+      }
+    }
   }
 
   async pix({ value, userId }: TPixInfo) {
@@ -105,7 +130,7 @@ export class ServicePayment {
       const dt = {
         name: 'hook',
         url,
-        email: 'contato@treepy.com.br',
+        email: 'appcomdigital@gmail.com',
         enabled: true,
         interrupted: false,
         authToken: null,

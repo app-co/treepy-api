@@ -8,6 +8,8 @@ interface IJangle {
   codigo: string
   treepycash: number
   nome: string
+  lat: number
+  long: number
 }
 
 
@@ -49,7 +51,8 @@ export class ServiceMetricas {
     const transactions = await prisma.transacoesUser.findMany({
       where: {
         userId
-      }
+      },
+      orderBy: { id: 'desc' }
     })
 
     const florestas = await this.jangle.listAll()
@@ -63,12 +66,18 @@ export class ServiceMetricas {
     let jangle: IJangle[] = []
 
     florestas.forEach(h => {
-      const calculo = treepycashes.find(t => t.florestaId === h.id)
-      if (calculo && calculo.isValid) {
+      const calculo = treepycashes
+        .filter(t => t.florestaId === h.id && t.isValid)
+        .reduce((ac, item) => ac + item.qnt, 0)
+
+      const calc = Number(calculo.toFixed(3))
+      if (calculo) {
         jangle.push({
           codigo: h.codigo,
-          treepycash: calculo.qnt,
+          treepycash: calc,
           nome: h.nome,
+          lat: Number(h.lat),
+          long: Number(h.long)
         })
       }
     })
@@ -79,7 +88,8 @@ export class ServiceMetricas {
         treepy: totalTreepycash,
         meta,
         isValid: calculadora ? true : false,
-        porcentagemAtingida: _toPorcent(porcentagemAtingida)
+        porcentagemAtingida: _toPorcent(porcentagemAtingida),
+        metaAtingida: porcentagemAtingida
       },
       floresta: jangle,
       treepycashesAtivos: treepycashes,

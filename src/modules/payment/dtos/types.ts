@@ -7,6 +7,14 @@ type creditCard = {
   ccv: string
 }
 
+export type TPaymentCardToken = {
+  billingType: string
+  customer: string
+  dueDate: string
+  creditCardToken: string
+  remoteIp: string
+  value: number
+}
 type holderInfo = {
   name: string
   email: string

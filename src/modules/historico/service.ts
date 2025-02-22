@@ -13,7 +13,7 @@ export class HistoricoService {
   }
 
   async getUserById(userId: string) {
-    const find = await prisma.historico.findFirst({ where: { userId: userId }, take: 20, orderBy: { created_at: 'asc' } });
+    const find = await prisma.historico.findMany({ where: { userId: userId }, take: 20, orderBy: { created_at: 'asc' } });
 
     if (!find) {
       throw new AppError('Not found');

@@ -3,15 +3,21 @@ import fastify from 'fastify';
 import { ZodError } from 'zod';
 
 import cookie from '@fastify/cookie';
+import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 import { AppError } from './shared/app-error/AppError';
 import { Routes } from './shared/routes';
 
+import formbody from '@fastify/formbody';
 
-export const app = fastify()
-// .withTypeProvider<ZodTypeProvider>();
-// app.setSerializerCompiler(serializerCompiler)
-// app.setValidatorCompiler(validatorCompiler)
+export const app = fastify();
+app.register(formbody);
+
+app.register(cors, {
+  origin: '*',
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
+});
+
 
 app.register(Routes);
 

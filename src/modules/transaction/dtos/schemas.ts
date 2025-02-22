@@ -11,6 +11,15 @@ const card = z.object({
   history: z.boolean().default(false)
 })
 
+const payCardToken = z.object({
+  userId: z.string(),
+  customer: z.string(),
+  dueDate: z.string(),
+  creditCardToken: z.string(),
+  remoteIp: z.string(),
+  value: z.number(),
+})
+
 const pix = z.object({
   value: z.number(),
   userId: z.string(),
@@ -18,5 +27,6 @@ const pix = z.object({
 
 export const schemas = {
   card,
-  pix
+  pix,
+  payCardToken
 }
