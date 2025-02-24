@@ -213,6 +213,8 @@ export class transactionServices {
       billingType: "CREDIT_CARD",
       value: obj.value,
       dueDate: format(new Date(), 'yyyy-MM-dd'),
+      installmentCount: obj.installmentCount,
+      installmentValue: obj.installmentValue,
       creditCard: {
         holderName: obj.holderName,
         number: obj.cardNumber,

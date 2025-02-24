@@ -21,6 +21,7 @@ export class ServiceMetricas {
 
   async user(userId: string) {
     const umAnoAtras = subYears(new Date(), 1);
+    const unidade = await prisma.precificacao.findFirst()
 
     const treepycashes = await prisma.treepycaches.findMany({
       where: {
@@ -62,7 +63,12 @@ export class ServiceMetricas {
     const totalTreepycash = treepycashes.filter(h => h.isValid).reduce((acc, curr) => acc + curr.qnt, 0);
     const meta = _co2ToTree(calculadora?.total ?? 0);
     const porcentagemAtingida = calculadora ? Number((totalTreepycash / meta).toFixed(2)) : 0
-
+    const trans = transactions.map(h => {
+      return {
+        ...h,
+        tree: (h.valo_compra / unidade?.unid_trepycash).toFixed(2)
+      }
+    })
     let jangle: IJangle[] = []
 
     florestas.forEach(h => {
@@ -94,7 +100,7 @@ export class ServiceMetricas {
       floresta: jangle,
       treepycashesAtivos: treepycashes,
       treepycashesInativos: treepycashesInativos,
-      transactions
+      transactions: trans
     }
   }
 }

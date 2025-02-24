@@ -8,7 +8,9 @@ const card = z.object({
   expiryMonth: z.string(),
   userId: z.string(),
   holderName: z.string(),
-  history: z.boolean().default(false)
+  history: z.boolean().default(false),
+  installmentCount: z.number().default(1),
+  installmentValue: z.number()
 })
 
 const payCardToken = z.object({
