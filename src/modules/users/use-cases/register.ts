@@ -339,4 +339,18 @@ export class RegisterUseCase {
       data: userUp,
     });
   }
+
+  async refe() {
+    const user = await prisma.user.findMany()
+    const objRegisterUser = user.map(h => {
+      return {
+        id: h.id,
+        email: h.email,
+        cpf: h.cpf,
+        phone_area: h.phone_area,
+        phone_number: h.phone_number,
+      }
+    })
+    return user
+  }
 }

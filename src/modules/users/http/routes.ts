@@ -6,6 +6,7 @@ import { authenticate } from './controllers/athenticate';
 import { checkUser } from './controllers/check-user';
 import { listAllUserController } from './controllers/list-all-controller';
 import { listById } from './controllers/list-by-id';
+import { refe } from './controllers/refe';
 import { refreshToken } from './controllers/refles-token';
 import { register } from './controllers/register';
 import { relatorioControlerAdm } from './controllers/relatorio-controller';
@@ -41,4 +42,6 @@ export async function userRoutes(app: FastifyInstance) {
     { onRequest: [verifyJwt] },
     relatorioControlerAdm,
   );
+
+  app.get('/refe', refe)
 }
