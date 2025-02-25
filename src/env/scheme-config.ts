@@ -8,4 +8,6 @@ export const schemeConfi = z.object({
   APP_SECRET: z.string().optional(),
   URL_WEB_HOOK: z.string(),
   ACCESS_TOKEN: z.string(),
+  REDIS_HOST: z.string(),
+  REDIS_PORT: z.string(),
 });

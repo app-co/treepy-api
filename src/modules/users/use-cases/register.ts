@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { Err } from '@/modules/charges/errors/Err';
 import { IRepoHistory } from '@/modules/history/repositories/repo-historory';
 import { IMailProvider } from '@/shared/providers/emails/providers/models/IMailProvider';
+import RedisCacheProvider from '@/shared/providers/redis/redis-provider';
 import {
   calculatorCo2ToTree,
   calculatorCurrencyToTree,
@@ -49,6 +50,8 @@ interface IUpUser {
 interface IResponse {
   user: any;
 }
+
+const redis = new RedisCacheProvider();
 
 export class RegisterUseCase {
   constructor(
@@ -341,16 +344,161 @@ export class RegisterUseCase {
   }
 
   async refe() {
-    const user = await prisma.user.findMany()
-    const objRegisterUser = user.map(h => {
+    let user = await redis.recover<any[]>('user');
+    let jangle = await redis.recover<any[]>('jangle');
+    let treeCashes = await redis.recover<any[]>('tree');
+    let transacions = await redis.recover<any[]>('transa');
+
+    if (!user) {
+      user = await prisma.user.findMany({
+        include: { end: true, profile: true },
+      });
+      await redis.save('user', user);
+    }
+
+    if (!jangle) {
+      jangle = await prisma.jangle.findMany({ orderBy: { ordem: 'asc' } });
+      await redis.save('jangle', jangle);
+    }
+
+    if (!treeCashes) {
+      treeCashes = await prisma.cashe_cliente.findMany();
+      await redis.save('tree', treeCashes);
+    }
+
+    if (!transacions) {
+      transacions = await prisma.charges.findMany();
+      await redis.save('trans', transacions);
+    }
+
+    const us = user.map(h => {
+      const cpf = h.cpf ? h.cpf.replace(/\D/g, '') : null;
       return {
         id: h.id,
         email: h.email,
-        cpf: h.cpf,
-        phone_area: h.phone_area,
-        phone_number: h.phone_number,
-      }
-    })
-    return user
+        nome: h.full_name,
+        senha: h.password,
+        cpfCnpj: cpf,
+        photUrl: h.profile?.avatar,
+        customerId: h.customer,
+      };
+    });
+
+    const end = user
+      .filter(h => h.end)
+      .map(h => {
+        return {
+          rua: h.end?.street,
+          numero: h.end?.home_number,
+          bairro: h.end?.locality,
+          cidade: h.end?.city,
+          estado: h.end?.region_code.toUpperCase(),
+          pais: 'BRASIL',
+          cep: h.end?.postal_code.replace(/\D/g, ''),
+          userId: h.end?.fk_user_id,
+        };
+      });
+
+    const floresta = jangle.map((h, i) => {
+      const st: { [key: string]: number } = {
+        Incio_plantacao: 0,
+        Plantacao_realizada: 1,
+        Manutencao_inicial: 2,
+        Manutencao_crescimento: 3,
+        Manutencao_preservacao: 4,
+        Planta_finalizada: 5,
+      };
+      return {
+        id: i,
+        oldId: h.id,
+        nome: h.name,
+        qnt_arvores: h.quantity_tree,
+        treepycash_disponivel: h.tree,
+        projeto: h.ordem,
+        codigo: h.codigo,
+        lat: h.lat,
+        long: h.log,
+        status: st[h.status],
+      };
+    });
+
+    const tree = treeCashes.map(h => {
+      const fl = floresta.find(j => j.oldId === h.fk_jangle_id);
+      return {
+        qnt: h.treepycash,
+        isValid: true,
+        florestaId: fl?.id ?? '',
+        userId: h.fk_user_id,
+      };
+    });
+
+    const trans = transacions
+      .filter(h => !!h.charge_id)
+      .map(h => {
+        const st = {
+          recusado: 0,
+          pendente: 2,
+          pago: 1,
+        };
+
+        return {
+          metodo: 'PIX',
+          status: st[h.status],
+          orderId: h.order_id,
+          valo_compra: h.value / 100,
+          userId: h.fk_user_id,
+        };
+      });
+
+    const prestador = jangle.map(h => {
+      const fl = floresta.find(j => j.oldId === h.id);
+
+      return {
+        nome: h.provider_name,
+        cpfCnpj: h.cpf.replace(/\D/g, ''),
+        crea: h.crea,
+        nomeFantasia: h.work_name,
+        IE_IM: h.IE_IM,
+        cep: h.postal_code,
+        numero: h.home_number,
+        complemento: h.complement,
+        cidade: h.city,
+        uf: h.region,
+        email: h.email,
+        contato: h.cell_phone,
+        rua: h.street,
+        florestasId: fl!.id,
+      };
+    });
+
+    const proprietario = jangle.map(h => {
+      const fl = floresta.find(j => j.oldId === h.id);
+      return {
+        matricula: h.matricula,
+        dataExpedicao: h.expedition_date,
+        nomeProprietario: h.proprerty_name,
+        nomeBenificiario: h.beneficiary_planting_name,
+        totalArea: h.total_area,
+        areaPlantada: h.planting_area,
+        florestaId: fl!.id,
+      };
+    });
+
+    const projeto = jangle.map(h => {
+      const fl = floresta.find(j => j.oldId === h.id);
+      return {
+        nomeProjeto: h.project_name,
+        nomeResponsavel: h.response_name,
+        authorization: h.authorization,
+        plant: h.plant,
+        observacoes: h.observacoes,
+        qntAvarore: h.quantity_tree,
+        valorProjeto: h.project_value,
+        valorMediaArvore: h.tree_media_value,
+        florestaId: fl!.id,
+      };
+    });
+
+    return { prestador, proprietario, projeto };
   }
 }
