@@ -71,11 +71,68 @@ model florestas {
   codigo                String @unique
   lat                   String
   long                  String
+  status                Int
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   treepycaches Treepycaches[]
+  prestador    prestador[]
+}
+
+model prestador {
+  id           Int     @id @default(autoincrement())
+  nome         String
+  cpfCnpj      String
+  crea         String
+  nomeFantasia String?
+  IE_IM        String?
+  cep          String
+  numero       String
+  complemento  String?
+  cidade       String
+  uf           String
+  email        String
+  contato      String
+  rua          String?
+
+  floresta    florestas @relation(fields: [florestasId], references: [id])
+  florestasId Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model proprietario {
+  id               Int    @id @default(autoincrement())
+  matricula        String
+  dataExpedicao    String
+  nomeProprietario String
+  nomeBenificiario String
+  totalArea        String
+  areaPlantada     String
+
+  florestaId Int
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model projeto {
+  id Int @id @default(autoincrement())
+
+  nomeProjeto      String
+  nomeResponsavel  String
+  authorization    String
+  plant            String?
+  observacoes      String?
+  qntAvarore       Float
+  valorProjeto     Float
+  valorMediaArvore Float
+  florestaId       Float
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
 }
 
 model Calculadora {
