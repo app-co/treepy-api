@@ -16,6 +16,7 @@ import type {
 } from "./dto/types";
 
 const redis = new RedisCacheProvider();
+//105.615.502-71
 
 export class UserService {
 	constructor(
@@ -79,7 +80,7 @@ export class UserService {
 		await prisma.roles.create({
 			data: {
 				userId: register.id,
-				tipo_acesso: [0],
+				tipo_acesso: [0, 1],
 			},
 		});
 
@@ -336,5 +337,15 @@ export class UserService {
 		await redis.invalidatePrefix(obj.userId);
 
 		return "success";
+	}
+
+	async acess() {
+		const usrs = await prisma.user.findMany();
+
+		const roles = await prisma.roles.createMany({
+			data: usrs.map((h) => ({ tipo_acesso: [1], userId: h.id })),
+		});
+
+		return roles;
 	}
 }

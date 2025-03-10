@@ -1,141 +1,143 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
-import { schemas } from './dto/shema';
-import { make } from './make';
+import type { FastifyReply, FastifyRequest } from "fastify";
+import { schemas } from "./dto/shema";
+import { make } from "./make";
 
-const service = make()
+const service = make();
 
 export class Controller {
-  async register(req: FastifyRequest, res: FastifyReply) {
-    const schema = schemas.registerUser.parse(req.body)
-    const rs = await service.register(schema);
+	async register(req: FastifyRequest, res: FastifyReply) {
+		const schema = schemas.registerUser.parse(req.body);
+		const rs = await service.register(schema);
 
-    return res.status(201).send(rs);
-  }
+		return res.status(201).send(rs);
+	}
 
-  async getUser(req: FastifyRequest, res: FastifyReply) {
-    const userId = req.user.sub
-    const rs = await service.getUserById(userId);
+	async getUser(req: FastifyRequest, res: FastifyReply) {
+		const userId = req.user.sub;
+		const rs = await service.getUserById(userId);
 
-    return res.status(201).send(rs);
-  }
+		return res.status(201).send(rs);
+	}
 
-  async updateuser(req: FastifyRequest, res: FastifyReply) {
-    const userId = req.user.sub
-    const schema = schemas.updateUser.parse({
-      ...req.body as any,
-      id: userId
-    });
+	async updateuser(req: FastifyRequest, res: FastifyReply) {
+		const userId = req.user.sub;
+		const schema = schemas.updateUser.parse({
+			...(req.body as any),
+			id: userId,
+		});
 
-    const rs = await service.updateUser(schema);
+		const rs = await service.updateUser(schema);
 
-    return res.status(201).send(rs);
-  }
+		return res.status(201).send(rs);
+	}
 
-  async getAll(req: FastifyRequest, res: FastifyReply) {
+	async getAll(req: FastifyRequest, res: FastifyReply) {}
 
-  }
+	async delete(req: FastifyRequest, res: FastifyReply) {}
 
-  async delete(req: FastifyRequest, res: FastifyReply) {
+	async login(req: FastifyRequest, res: FastifyReply) {
+		const obj = schemas.login.parse(req.body);
+		const { user, role } = await service.login(obj);
 
-  }
+		const token = await res.jwtSign(
+			{
+				role,
+			},
+			{
+				sign: {
+					sub: user.id,
+				},
+			},
+		);
 
-  async login(req: FastifyRequest, res: FastifyReply) {
-    const obj = schemas.login.parse(req.body);
-    const { user, role } = await service.login(obj);
+		const refreshToken = await res.jwtSign(
+			{
+				role,
+			},
+			{
+				sign: {
+					sub: user.id,
+					expiresIn: "1h",
+				},
+			},
+		);
 
-    const token = await res.jwtSign(
-      {
-        role
-      },
-      {
-        sign: {
-          sub: user.id,
-        },
-      },
-    );
+		return res
+			.setCookie("refresh", refreshToken, {
+				path: "/",
+				secure: true,
+				sameSite: true,
+				httpOnly: true,
+			})
+			.status(201)
+			.send({
+				token,
+				refreshToken,
+			});
+	}
 
-    const refreshToken = await res.jwtSign(
-      {
-        role
-      },
-      {
-        sign: {
-          sub: user.id,
-          expiresIn: '1h',
-        },
-      },
-    );
+	async refreshToken(
+		req: FastifyRequest,
+		res: FastifyReply,
+	): Promise<Response> {
+		try {
+			const { role, sub } = await req.jwtVerify<{
+				role: number[];
+				sub: string;
+			}>({ onlyCookie: true });
+			const token = await res.jwtSign(
+				{
+					role,
+				},
+				{
+					sign: {
+						sub: sub,
+					},
+				},
+			);
 
+			const refleshToken = await res.jwtSign(
+				{
+					role,
+				},
+				{
+					sign: {
+						sub: sub,
+						expiresIn: "1h",
+					},
+				},
+			);
 
-    return res
-      .setCookie('refresh', refreshToken, {
-        path: '/',
-        secure: true,
-        sameSite: true,
-        httpOnly: true,
-      })
-      .status(201)
-      .send({
-        token,
-        refreshToken,
-      })
-  }
+			const dt = {
+				token,
+			};
 
-  async refreshToken(
-    req: FastifyRequest,
-    res: FastifyReply,
-  ): Promise<Response> {
-    try {
-      const { role, sub } = await req.jwtVerify<{ role: number[], sub: string }>({ onlyCookie: true });
-      const token = await res.jwtSign(
-        {
-          role,
-        },
-        {
-          sign: {
-            sub: sub,
-          },
-        },
-      );
+			return res
+				.setCookie("refresh", refleshToken, {
+					path: "/",
+					secure: true,
+					sameSite: true,
+					httpOnly: true,
+				})
+				.send(dt)
+				.status(201);
+		} catch (error) {
+			console.log(error);
+			return res
+				.status(401)
+				.send({ error: "Seu token expirou, faça o login novamente" });
+		}
+	}
 
-      const refleshToken = await res.jwtSign(
-        {
-          role
-        },
-        {
-          sign: {
-            sub: sub,
-            expiresIn: '1h',
-          },
-        },
-      );
+	async updateEnd(req: FastifyRequest, res: FastifyReply) {
+		const schema = schemas.endereco.parse(req.body);
+		const rs = await service.updateEnd(schema);
 
-      const dt = {
-        token,
-      };
+		return res.status(201).send(rs);
+	}
 
-      return res
-        .setCookie('refresh', refleshToken, {
-          path: '/',
-          secure: true,
-          sameSite: true,
-          httpOnly: true,
-        })
-        .send(dt)
-        .status(201);
-    } catch (error) {
-      console.log(error)
-      return res
-        .status(401)
-        .send({ error: 'Seu token expirou, faça o login novamente' });
-    }
-  }
-
-  async updateEnd(req: FastifyRequest, res: FastifyReply) {
-    const schema = schemas.endereco.parse(req.body)
-    const rs = await service.updateEnd(schema);
-
-    return res.status(201).send(rs);
-  }
-
+	async acess(req: FastifyRequest, res: FastifyReply) {
+		const rs = await service.acess();
+		return res.status(201).send(rs);
+	}
 }

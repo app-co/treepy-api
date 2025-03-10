@@ -13,7 +13,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 0 - comum; 1 - prestador; 2 - adm; 3 - associado
+// 0 - admin; 
+// 1 - comum; 
+// 2 - prestador; 
+// 3 - associado
 
 model Roles {
   id          String   @id @default(uuid())

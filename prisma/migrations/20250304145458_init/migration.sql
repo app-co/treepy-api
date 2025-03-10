@@ -49,11 +49,12 @@ CREATE TABLE "florestas" (
     "id" SERIAL NOT NULL,
     "nome" TEXT NOT NULL,
     "qnt_arvores" INTEGER NOT NULL,
-    "treepycash_disponivel" INTEGER NOT NULL,
+    "treepycash_disponivel" DOUBLE PRECISION NOT NULL,
     "projeto" SERIAL NOT NULL,
     "codigo" TEXT NOT NULL,
     "lat" TEXT NOT NULL,
     "long" TEXT NOT NULL,
+    "status" INTEGER NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -61,15 +62,72 @@ CREATE TABLE "florestas" (
 );
 
 -- CreateTable
+CREATE TABLE "prestador" (
+    "id" SERIAL NOT NULL,
+    "nome" TEXT NOT NULL,
+    "cpfCnpj" TEXT NOT NULL,
+    "crea" TEXT NOT NULL,
+    "nomeFantasia" TEXT,
+    "IE_IM" TEXT,
+    "cep" TEXT NOT NULL,
+    "numero" TEXT NOT NULL,
+    "complemento" TEXT,
+    "cidade" TEXT NOT NULL,
+    "uf" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "contato" TEXT NOT NULL,
+    "rua" TEXT,
+    "florestasId" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "prestador_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "proprietario" (
+    "id" SERIAL NOT NULL,
+    "matricula" TEXT NOT NULL,
+    "dataExpedicao" TEXT NOT NULL,
+    "nomeProprietario" TEXT NOT NULL,
+    "nomeBenificiario" TEXT NOT NULL,
+    "totalArea" TEXT NOT NULL,
+    "areaPlantada" TEXT NOT NULL,
+    "florestaId" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "proprietario_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "projeto" (
+    "id" SERIAL NOT NULL,
+    "nomeProjeto" TEXT NOT NULL,
+    "nomeResponsavel" TEXT NOT NULL,
+    "authorization" TEXT NOT NULL,
+    "plant" TEXT,
+    "observacoes" TEXT,
+    "qntAvarore" DOUBLE PRECISION NOT NULL,
+    "valorProjeto" DOUBLE PRECISION NOT NULL,
+    "valorMediaArvore" DOUBLE PRECISION NOT NULL,
+    "florestaId" DOUBLE PRECISION NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "projeto_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Calculadora" (
     "id" SERIAL NOT NULL,
-    "gas" TEXT NOT NULL,
-    "eletricidade" TEXT NOT NULL,
-    "transporte_individual" TEXT NOT NULL,
-    "transporte_coletivo" TEXT NOT NULL,
-    "alimentacao" TEXT NOT NULL,
-    "residuos" TEXT NOT NULL,
-    "total" TEXT NOT NULL,
+    "gas" DOUBLE PRECISION NOT NULL,
+    "eletricidade" DOUBLE PRECISION NOT NULL,
+    "transporte_individual" DOUBLE PRECISION NOT NULL,
+    "transporte_coletivo" DOUBLE PRECISION NOT NULL,
+    "alimentacao" DOUBLE PRECISION NOT NULL,
+    "residuos" DOUBLE PRECISION NOT NULL,
+    "total" DOUBLE PRECISION NOT NULL,
     "userId" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
@@ -112,15 +170,28 @@ CREATE TABLE "Historico" (
 );
 
 -- CreateTable
-CREATE TABLE "Pagamentos" (
+CREATE TABLE "transacoesUser" (
     "id" SERIAL NOT NULL,
     "metodo" "metodo" NOT NULL,
     "status" INTEGER NOT NULL,
     "orderId" TEXT NOT NULL,
     "valo_compra" DOUBLE PRECISION NOT NULL,
     "userId" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Pagamentos_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "transacoesUser_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "transacoes" (
+    "id" SERIAL NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "paymentType" TEXT NOT NULL,
+    "valorBruto" DOUBLE PRECISION NOT NULL,
+    "valorLiquido" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL,
+
+    CONSTRAINT "transacoes_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -158,13 +229,16 @@ CREATE UNIQUE INDEX "florestas_projeto_key" ON "florestas"("projeto");
 CREATE UNIQUE INDEX "florestas_codigo_key" ON "florestas"("codigo");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Pagamentos_orderId_key" ON "Pagamentos"("orderId");
+CREATE UNIQUE INDEX "transacoesUser_orderId_key" ON "transacoesUser"("orderId");
 
 -- AddForeignKey
 ALTER TABLE "Roles" ADD CONSTRAINT "Roles_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Endereco" ADD CONSTRAINT "Endereco_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "prestador" ADD CONSTRAINT "prestador_florestasId_fkey" FOREIGN KEY ("florestasId") REFERENCES "florestas"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Calculadora" ADD CONSTRAINT "Calculadora_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -179,7 +253,7 @@ ALTER TABLE "Treepycaches" ADD CONSTRAINT "Treepycaches_florestaId_fkey" FOREIGN
 ALTER TABLE "Historico" ADD CONSTRAINT "Historico_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Pagamentos" ADD CONSTRAINT "Pagamentos_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "transacoesUser" ADD CONSTRAINT "transacoesUser_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "cardToken" ADD CONSTRAINT "cardToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
