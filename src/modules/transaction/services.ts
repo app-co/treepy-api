@@ -319,6 +319,9 @@ export class transactionServices {
 		}
 	}
 	async pay_pix(obj: TPix) {
+		const value = obj.value / 100;
+
+		console.log({ value });
 		try {
 			const payment = await this.payment.pix(obj);
 

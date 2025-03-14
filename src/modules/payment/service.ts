@@ -133,7 +133,7 @@ export class ServicePayment {
 			const dt = {
 				name: "hook",
 				url,
-				email: "appcomdigital@gmail.com",
+				email: "contato@treepy.com.br",
 				enabled: true,
 				interrupted: false,
 				authToken: null,
@@ -179,5 +179,20 @@ export class ServicePayment {
 				throw new AppError(error.error);
 			}
 		}
+	}
+
+	public async listarWebHooks() {
+		const { data } = await api.get("/webhooks");
+
+		return data;
+	}
+
+	async deletarWebhook(id: string) {
+		console.log(id);
+		await api.delete(`/webhooks/${id}`);
+	}
+
+	async atualizarWebhook(id: string) {
+		await api.put(`/webhooks/${id}`);
 	}
 }
