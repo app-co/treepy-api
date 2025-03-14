@@ -1,0 +1,25 @@
+import { {{pascalCase model}} } from '@prisma/client';
+import { AppError } from '@/shared/app-error/AppError';
+import { prisma } from '@/lib/prisma';
+
+
+export class Service {
+
+async create(data: any) {}
+
+async getUserById(userId: string) {
+const find = await prisma.{{model}}.findFirst({where: {id: userId}});
+
+if (!find) {
+throw new AppError('Not found');
+}
+return find
+}
+
+async listAll() {
+
+const list = await prisma.{{model}}.findMany();
+
+return list
+}
+}

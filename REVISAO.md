@@ -1,1 +1,0 @@
-## corrigir textos treepycashes para 

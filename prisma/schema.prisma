@@ -1,301 +1,231 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider = "prisma-client-js"
 }
 
-enum ROLE {
-  ADMIN
-  USER
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model userHotel {
-  id           String @id @default(uuid())
-  full_name    String
-  email        String
-  phone_number String
-  tree         Int
+// 0 - admin; 
+// 1 - comum; 
+// 2 - prestador; 
+// 3 - associado
+
+model Roles {
+  id          String   @id @default(uuid())
+  tipo_acesso Int[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id           String  @id @default(uuid())
-  full_name    String
-  email        String
-  password     String
-  cpf          String? @unique()
-  phone_area   String?
-  phone_number String?
-  customer     String?
+  id         String    @id @default(uuid())
+  nome       String
+  email      String    @unique
+  senha      String
+  cpfCnpj    String?   @unique
+  customerId String?   @unique
+  endereco   Endereco?
+  photUrl    String?
 
-  role ROLE @default(USER)
-
-  end           End?
-  profile       Profile?
-  Permissons    Permissons?
-  Calculadora   Calculadora?
-  cashe_cliente cashe_cliente[]
-  grupo         grupo[]
-  History       History[]
-  Charges       Charges[]
-  jangle        jangle[]
-
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt()
-  grupoId    String?
-  cardToken  cardToken?
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+  roles        Roles?
+  treepycaches Treepycaches[]
+  historico    Historico[]
+  pagamentos   transacoesUser[]
+  Calculadora  Calculadora[]
+  cardToken    cardToken[]
 }
 
-model cardToken {
+model Endereco {
   id     Int    @id @default(autoincrement())
-  token  String
-  number String
-  brand  String
+  rua    String
+  numero String
+  bairro String
+  cidade String
+  estado String
+  pais   String
+  cep    String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @unique
 
-  user User @relation(fields: [userId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model florestas {
+  id                    Int    @id @default(autoincrement())
+  nome                  String
+  qnt_arvores           Int
+  treepycash_disponivel Float
+  projeto               Int    @unique @default(autoincrement())
+  codigo                String @unique
+  lat                   String
+  long                  String
+  status                Int
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
+  updated_at DateTime @updatedAt
+
+  treepycaches Treepycaches[]
+  prestador    prestador[]
 }
 
-model End {
-  id          String  @id @default(uuid())
-  street      String
-  locality    String
-  home_number String
-  city        String
-  state       String?
-  region_code String
-  postal_code String
-  complement  String
-  fk_user_id  String  @unique
-  user        User    @relation(fields: [fk_user_id], references: [id], onDelete: Cascade)
+model prestador {
+  id           Int     @id @default(autoincrement())
+  nome         String
+  cpfCnpj      String
+  crea         String
+  nomeFantasia String?
+  IE_IM        String?
+  cep          String
+  numero       String
+  complemento  String?
+  cidade       String
+  uf           String
+  email        String
+  contato      String
+  rua          String?
+
+  floresta    florestas @relation(fields: [florestasId], references: [id])
+  florestasId Int
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
+  updated_at DateTime @updatedAt
 }
 
-model Profile {
-  id         String  @id @default(uuid())
-  avatar     String?
-  fk_user_id String  @unique
-  user       User    @relation(fields: [fk_user_id], references: [id], onDelete: Cascade)
+model proprietario {
+  id               Int    @id @default(autoincrement())
+  matricula        String
+  dataExpedicao    String
+  nomeProprietario String
+  nomeBenificiario String
+  totalArea        String
+  areaPlantada     String
+
+  florestaId Int
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
+  updated_at DateTime @updatedAt
 }
 
-model User_tokens {
-  id      String  @id @default(uuid())
-  token   String  @unique @default(uuid())
-  user_id String?
+model projeto {
+  id Int @id @default(autoincrement())
 
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
-}
-
-enum enumStatus {
-  pendente
-  recusado
-  pago
-}
-
-enum enumTypePayment {
-  pix
-  cartao
-  boleto
-}
-
-model Charges {
-  id         String     @id @default(uuid())
-  charge_id  String
-  order_id   String
-  customer   Json
-  fk_user_id String
-  status     enumStatus @default(pendente)
-  value      Int
-  type       String?
-  user       User       @relation(fields: [fk_user_id], references: [id], onDelete: Cascade)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
-}
-
-model hooks {
-  id         String   @id @default(uuid())
-  object     Json
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
-}
-
-model Permissons {
-  id            String   @id @default(uuid())
-  termos        Boolean  @default(false)
-  notifications Boolean  @default(false)
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt()
-}
-
-model History {
-  id         String @id @default(uuid())
-  title      String
-  subtitle   String
-  fk_user_id String
-  user       User   @relation(fields: [fk_user_id], references: [id], onDelete: Cascade)
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
-}
-
-enum Country {
-  BR
-}
-
-enum StatusJangle {
-  Incio_plantacao
-  Plantacao_realizada
-  Manutencao_inicial
-  Manutencao_crescimento
-  Manutencao_preservacao
-  Planta_finalizada
-}
-
-model jangle {
-  id          String       @id @default(uuid())
-  ordem       Int?
-  name        String
-  codigo      String
-  description String
-  lat         String
-  log         String
-  tree        Int          @default(0)
-  country     Country      @default(BR)
-  status      StatusJangle @default(Incio_plantacao)
-
-  // prestador
-  provider_name String
-  cpf           String
-  crea          String
-  work_name     String?
-  IE_IM         String?
-  postal_code   String
-  home_number   String
-  complement    String
-  city          String
-  region        String
-  email         String
-  cell_phone    String
-  phone         String?
-  street        String?
-
-  //proprietário
-  matricula                 String
-  expedition_date           String
-  proprerty_name            String
-  beneficiary_planting_name String
-  total_area                String
-  planting_area             String
-
-  //projeto
-  project_name              String
-  response_name             String
-  aprovation_ambiental_name String
-  authorization             String
-  plant                     String?
-
-  observacoes String?
-
-  //custo
-  quantity_tree    Int
-  project_value    Int
-  tree_media_value Int
-
-  treepycash   caches?
-  cashe_jangle cashe_jangle?
-  grupo        grupo[]
-  User         User[]
+  nomeProjeto      String
+  nomeResponsavel  String
+  authorization    String
+  plant            String?
+  observacoes      String?
+  qntAvarore       Float
+  valorProjeto     Float
+  valorMediaArvore Float
+  florestaId       Float
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt()
 }
 
 model Calculadora {
-  id String @id @default(uuid())
+  id                    Int   @id @default(autoincrement())
+  gas                   Float
+  eletricidade          Float
+  transporte_individual Float
+  transporte_coletivo   Float
+  alimentacao           Float
+  residuos              Float
+  total                 Float
 
-  eletricidade          String?
-  gas                   String?
-  transporte_individual String?
-  transporte_coletivo   String?
-  alimentacao           String?
-  residuos              String?
-  total                 String?
-
-  user       User     @relation(fields: [fk_user_id], references: [id], onDelete: Cascade)
-  fk_user_id String   @unique
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
-}
-
-model cashe_cliente {
-  id           String @id @default(uuid())
-  treepycash   Int    @default(0)
-  meta         Int
-  fk_user_id   String @unique
-  fk_jangle_id String
-
-  cachesId String
-  cashes   caches @relation(fields: [cachesId], references: [id], onDelete: Cascade)
-  user     User   @relation(fields: [fk_user_id], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
+  updated_at DateTime @updatedAt
 }
 
-model cashe_jangle {
-  id           String @id @default(uuid())
-  treepycashe  Int    @default(0)
-  fk_jangle_id String @unique
-  jangle       jangle @relation(fields: [fk_jangle_id], references: [id], onDelete: Cascade)
+model precificacao {
+  id             Int   @id @default(autoincrement())
+  unid_trepycash Float
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
+  updated_at DateTime @updatedAt
 }
 
-model caches {
-  id           String @id @default(uuid())
-  fk_jangle_id String @unique
-  jangle       jangle @relation(fields: [fk_jangle_id], references: [id], onDelete: Cascade)
-  treepeycash  Int    @default(0)
+model Treepycaches {
+  id      Int     @id @default(autoincrement())
+  qnt     Float
+  isValid Boolean
 
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt()
-  cashe_cliente cashe_cliente[]
-}
-
-model grupo {
-  id String @id @default(uuid())
-
-  fk_user_id   String  @unique
-  fk_jangle_id String  @unique
-  User         User?   @relation(fields: [fk_user_id], references: [id], onDelete: Cascade)
-  jangle       jangle? @relation(fields: [fk_jangle_id], references: [id], onDelete: Cascade)
+  florestaId Int
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  floresta   florestas @relation(fields: [florestaId], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
+  updated_at DateTime @updatedAt
 }
 
-model treepycash_pote {
-  id         String @id @default(uuid())
-  treepycash Int    @default(0)
+model Historico {
+  id        Int    @id @default(autoincrement())
+  titulo    String
+  descricao String
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt()
+}
+
+enum metodo {
+  CARTAO
+  PIX
+  BOLETO
+}
+
+// 0 - aguardando; 1 - aprovado; 3 - recusado
+
+model transacoesUser {
+  id          Int    @id @default(autoincrement())
+  metodo      metodo
+  status      Int
+  orderId     String @unique
+  valo_compra Float
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+}
+
+model transacoes {
+  id           Int    @id @default(autoincrement())
+  orderId      String
+  paymentType  String
+  valorBruto   Float
+  valorLiquido Float
+  status       String
+}
+
+model cardToken {
+  id               Int    @id @default(autoincrement())
+  token            String
+  creditCardNumber String
+  creditCardBrand  String
+  userId           String
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }

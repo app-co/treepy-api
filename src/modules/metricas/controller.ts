@@ -1,14 +1,35 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { service } from './make';
 
-import { Metricass } from './service';
-
-const service = new Metricass();
+const make = service()
 
 export class Controller {
-  async user(req: FastifyRequest, res: FastifyReply) {
-    const userId = req.user.sub;
-    const exec = await service.user(userId);
+  async register(req: FastifyRequest, res: FastifyReply) {
+    const id = req.user.sub
+    const rs = await make.user(id);
 
-    return res.status(201).send(exec);
+    return res.status(201).send(rs);
   }
+
+  async getUser(req: FastifyRequest, res: FastifyReply) {
+    const schema = req.body
+    const rs = await make.register(schema);
+
+    return res.status(201).send(rs);
+  }
+
+  async getAll(req: FastifyRequest, res: FastifyReply) {
+    const schema = req.body
+    const rs = await make.register(schema);
+
+    return res.status(201).send(rs);
+  }
+
+  async delete(req: FastifyRequest, res: FastifyReply) {
+    const schema = req.body
+    const rs = await make.register(schema);
+
+    return res.status(201).send(rs);
+  }
+
 }

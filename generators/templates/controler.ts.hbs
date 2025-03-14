@@ -1,23 +1,35 @@
-import { UserAlredyExist } from '@/modules/users/use-cases/errors/user-alredy-existes-error';
+import { Service } from '@modules/{{model}}/service';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { z } from 'zod';
 
+const make = new Service()
 
-export async function payPix(req: FastifyRequest, res: FastifyReply) {
-  const registerScheme = z.object({ });
+export class Controller {
+async register(req: FastifyRequest, res: FastifyReply) {
+const schema = req.body
+const rs = await make.register(schema);
 
-  const data = registerScheme.parse(req.body);
+return res.status(201).send(rs);
+}
 
-  try {
-    const make = make{{pascalCase db}}();
+async getUser(req: FastifyRequest, res: FastifyReply) {
+const schema = req.body
+const rs = await make.register(schema);
 
-    const rs = await make.create(data);
-    return res.status(201).send(rs);
-  } catch (err) {
-    if (err instanceof NotAtuthorized) {
-      return res.status(409).send({ error: err.message });
-    }
+return res.status(201).send(rs);
+}
 
-    throw err;
-  }
+async getAll(req: FastifyRequest, res: FastifyReply) {
+const schema = req.body
+const rs = await make.register(schema);
+
+return res.status(201).send(rs);
+}
+
+async delete(req: FastifyRequest, res: FastifyReply) {
+const schema = req.body
+const rs = await make.register(schema);
+
+return res.status(201).send(rs);
+}
+
 }

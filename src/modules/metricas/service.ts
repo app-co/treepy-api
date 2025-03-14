@@ -1,120 +1,106 @@
+import { _co2ToTree, _toPorcent } from '@/@utils/unidades';
 import { prisma } from '@/lib/prisma';
-import { _toPtBrNumber, calculatorCo2ToTree } from '@/utils/unit-formates';
+import { subYears } from 'date-fns';
+import { ServiceCalculadora } from '../calculadora/service';
+import { ServiceFloresta } from '../florestas/service';
 
-import { Err } from '../charges/errors/Err';
+interface IJangle {
+  codigo: string
+  treepycash: number
+  nome: string
+  lat: number
+  long: number
+}
 
-export class Metricass {
+
+export class ServiceMetricas {
+  constructor(
+    private calc: ServiceCalculadora,
+    private jangle: ServiceFloresta,
+  ) { }
+
   async user(userId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        Calculadora: true,
-        cashe_cliente: true,
-        Charges: {
-          select: {
-            status: true,
-            updated_at: true,
-            value: true,
-            type: true,
-          },
+    const umAnoAtras = subYears(new Date(), 1);
+    const unidade = await prisma.precificacao.findFirst()
+
+    const treepycashes = await prisma.treepycaches.findMany({
+      where: {
+        userId: userId,
+        updated_at: {
+          gte: umAnoAtras,
         },
       },
-    });
+      include: {
+        floresta: true,
+      },
+      orderBy: { updated_at: 'asc' }
+    })
 
-    if (!user) {
-      throw new Err('User not found');
-    }
-
-    const caches = user.cashe_cliente ?? [];
-
-    const jangles = await prisma.jangle.findMany({
+    const treepycashesInativos = await prisma.treepycaches.findMany({
       where: {
-        id: { in: caches.map(h => h.fk_jangle_id) },
+        userId: userId,
+        updated_at: {
+          lte: umAnoAtras,
+        },
       },
-      select: {
-        id: true,
-        codigo: true,
-        name: true,
-        lat: true,
-        log: true,
-        tree: true,
+      include: {
+        floresta: true,
       },
-    });
+      orderBy: { updated_at: 'asc' }
+    })
 
-    const floresta = jangles.map(h => {
-      const tree = caches.find(p => p.fk_jangle_id === h.id);
+    const transactions = await prisma.transacoesUser.findMany({
+      where: {
+        userId
+      },
+      orderBy: { id: 'desc' }
+    })
 
+    const florestas = await this.jangle.listAll()
+
+    const calculadora = await this.calc.getCalcById(userId)
+
+    const totalTreepycash = treepycashes.filter(h => h.isValid).reduce((acc, curr) => acc + curr.qnt, 0);
+    const meta = _co2ToTree(calculadora?.total ?? 0);
+    const porcentagemAtingida = calculadora ? Number((totalTreepycash / meta).toFixed(2)) : 0
+    const trans = transactions.map(h => {
       return {
         ...h,
-        tree: tree?.treepycash ?? 0,
-      };
-    });
+        tree: (h.valo_compra / unidade?.unid_trepycash).toFixed(2)
+      }
+    })
+    let jangle: IJangle[] = []
 
-    const history = await prisma.history.findMany({
-      where: { fk_user_id: userId },
-      take: 10,
-      orderBy: { updated_at: 'desc' },
-    });
+    florestas.forEach(h => {
+      const calculo = treepycashes
+        .filter(t => t.florestaId === h.id && t.isValid)
+        .reduce((ac, item) => ac + item.qnt, 0)
 
-    const treepyCashes = user.cashe_cliente.reduce(
-      (ac, item) => ac + item.treepycash,
-      0,
-    );
+      const calc = Number(calculo.toFixed(3))
+      if (calculo) {
+        jangle.push({
+          codigo: h.codigo,
+          treepycash: calc,
+          nome: h.nome,
+          lat: Number(h.lat),
+          long: Number(h.long)
+        })
+      }
+    })
 
-    const orders = user.Charges;
-
-    let pagamentos = {};
-
-    orders.forEach(h => {
-      const aprovados = orders.filter(p => p.status === 'pago');
-      const pendentes = orders.filter(p => p.status === 'pendente');
-      const recusado = orders.filter(p => p.status === 'recusado');
-
-      pagamentos = {
-        aprovados,
-        pendentes,
-        recusado,
-      };
-    });
-
-    const calculadora = {
-      eletricidade: _toPtBrNumber(user.Calculadora?.eletricidade ?? '0'),
-      gas: _toPtBrNumber(user?.Calculadora?.gas ?? '0'),
-      transporte_individual: _toPtBrNumber(
-        user.Calculadora?.transporte_individual ?? '0',
-      ),
-      transporte_coletivo: _toPtBrNumber(
-        user.Calculadora?.transporte_coletivo ?? '0',
-      ),
-      alimentacao: _toPtBrNumber(user.Calculadora?.alimentacao ?? '0'),
-      residuos: _toPtBrNumber(user.Calculadora?.residuos ?? '0'),
-      total: _toPtBrNumber(user.Calculadora?.total ?? '0'),
-    };
-
-    const dt = {
-      meta: calculatorCo2ToTree(Number(user.Calculadora?.total) ?? '0'),
-      qnt_trepycaches: treepyCashes,
-      history,
-      calculadora,
-      pagamentos,
-      floresta,
-    };
-
-    return dt;
-  }
-
-  async admin() {
-    const users = await prisma.user.findMany({
-      include: {
-        Calculadora: true,
-        History: true,
+    return {
+      compensacao: {
+        co2Anual: calculadora?.total ?? 0,
+        treepy: totalTreepycash,
+        meta,
+        isValid: calculadora ? true : false,
+        porcentagemAtingida: _toPorcent(porcentagemAtingida),
+        metaAtingida: porcentagemAtingida
       },
-    });
-
-    users.forEach(user => {
-      const { History, Calculadora } = user;
-    });
-
-    return users;
+      floresta: jangle,
+      treepycashesAtivos: treepycashes,
+      treepycashesInativos: treepycashesInativos,
+      transactions: trans
+    }
   }
 }

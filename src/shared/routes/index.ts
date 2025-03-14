@@ -1,29 +1,22 @@
-import { paymentAsaasRoute } from '@/modules/asaas/payments/routes';
-import { calculadoraRoutes } from '@/modules/calculadora/http/routes';
-import { chargesRoutes } from '@/modules/charges/http/routes';
-import { historyRoutes } from '@/modules/history/http/routes';
-import { jangleRoutes } from '@/modules/jangles/http/routes';
-import { metricaRoute } from '@/modules/metricas/routes';
-import { pagseguroRoutes } from '@/modules/pagSeguro/http/routes';
-import { paymentRoutes } from '@/modules/payments/routes';
-import { treepyCashRoutes } from '@/modules/treepycash/http/routes';
-import { hoteRoutes } from '@/modules/userHotel/http/routes';
-import { userRoutes } from '@/modules/users/http/routes';
-import { hookRoutes } from '@/modules/webHooks/http/routes';
-import { FastifyInstance } from 'fastify';
+import { routesCalculadora } from "@/modules/calculadora/routes";
+import { routesFloresta } from "@/modules/florestas/routes";
+import { routesHistorico } from "@/modules/historico/routes";
+import { routesMetrica } from "@/modules/metricas/routes";
+import { routesPayment } from "@/modules/payment/routes";
+import { routeAppTransaction } from "@/modules/transaction/app.routes";
+import { routeTransaction } from "@/modules/transaction/routes";
+import { authUser } from "@/modules/user/routes/auth.routes";
+import { RouteUser } from "@/modules/user/routes/routes";
+import { FastifyInstance } from "fastify";
 
 export async function Routes(app: FastifyInstance) {
-  app.register(userRoutes);
-
-  app.register(chargesRoutes);
-  app.register(historyRoutes);
-  app.register(jangleRoutes);
-  app.register(calculadoraRoutes);
-  app.register(pagseguroRoutes);
-  app.register(treepyCashRoutes);
-  app.register(hookRoutes);
-  app.register(hoteRoutes);
-  app.register(paymentRoutes);
-  app.register(paymentAsaasRoute);
-  app.register(metricaRoute);
+  app.register(RouteUser);
+  app.register(authUser);
+  app.register(routeTransaction)
+  app.register(routeAppTransaction)
+  app.register(routesFloresta)
+  app.register(routesCalculadora)
+  app.register(routesMetrica)
+  app.register(routesPayment)
+  app.register(routesHistorico)
 }
