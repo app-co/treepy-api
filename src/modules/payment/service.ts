@@ -193,6 +193,7 @@ export class ServicePayment {
 	}
 
 	async atualizarWebhook(id: string) {
-		await api.put(`/webhooks/${id}`);
+		const { data } = await api.put(`/webhooks/${id}`);
+		return data;
 	}
 }
