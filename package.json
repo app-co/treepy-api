@@ -12,10 +12,10 @@
     "restore": "pg_restore -U postgres -h localhost -d treepy -c backup.dump",
     "bkup": "pg_dump -U postgres -h localhost -d treepy -F c -f backup.dump",
     "md": "yarn prisma migrate dev",
-    "push": "yarn prisma studio",
+    "push": "yarn prisma db push",
     "st": "yarn prisma studio",
     "build": "tsup src --out-dir build",
-    "bd": "yarn md && tsup src --out-dir dist && pm2 restart 0"
+    "bd": "yarn push && tsup src --out-dir dist && pm2 restart 0"
   },
   "keywords": [],
   "author": "",
