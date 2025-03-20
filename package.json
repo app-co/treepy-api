@@ -15,7 +15,7 @@
     "push": "yarn prisma studio",
     "st": "yarn prisma studio",
     "build": "tsup src --out-dir build",
-    "bd": "yarn bkup && yarn md && tsup src --out-dir dist && pm2 restart 0"
+    "bd": "yarn md && tsup src --out-dir dist && pm2 restart 0"
   },
   "keywords": [],
   "author": "",
