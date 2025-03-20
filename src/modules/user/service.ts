@@ -1,5 +1,6 @@
 import path from "path";
 import { _validarCNPJ, _validarCPF } from "@/@utils/validate-cpf";
+import { env } from "@/env";
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/shared/app-error/AppError";
 import type { IMailProvider } from "@/shared/providers/emails/providers/models/IMailProvider";
@@ -347,5 +348,73 @@ export class UserService {
 		});
 
 		return roles;
+	}
+
+	async sendEmailforgot({ email }: any) {
+		const user = await prisma.user.findFirst({ where: { email } });
+
+		if (!user) {
+			throw new AppError("E-mail não encontrado");
+		}
+		const { token } = await prisma.user_tokens.create({
+			data: {
+				user_id: user.id,
+			},
+		});
+
+		const mailUrl =
+			env.NODE_ENV === "dev"
+				? `http://localhost:5173/resetpass/${token}/reset`
+				: `treepy.com.br/resetpass/${token}/reset`;
+
+		const forgotPassword = path.resolve(
+			__dirname,
+			"..",
+			"user",
+			"view",
+			"forgot_password.hbs",
+		);
+
+		await this.sendMail.sendMail({
+			to: {
+				name: user.nome,
+				email: user.email,
+			},
+			subject: "[Treepy] Recuperação de senha",
+			templateData: {
+				file: forgotPassword,
+				variables: {
+					name: user.nome,
+					token,
+					link: mailUrl,
+				},
+			},
+		});
+	}
+
+	async resetPass({ token, pas }: { token: string; pas: string }) {
+		const userToken = await prisma.user_tokens.findFirst({
+			where: { token },
+		});
+
+		if (!userToken) {
+			throw new AppError("Token inválido");
+		}
+		const user = await prisma.user.findFirst({
+			where: { id: userToken.id },
+		});
+
+		if (!user) {
+			throw new AppError("Usuario não encontrado");
+		}
+
+		const pass = await hash(pas, 8);
+
+		await prisma.user.update({
+			where: { id: user.id },
+			data: { senha: pass },
+		});
+
+		return user;
 	}
 }

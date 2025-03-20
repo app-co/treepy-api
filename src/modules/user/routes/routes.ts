@@ -8,4 +8,6 @@ export async function RouteUser(app: FastifyInstance) {
 	app.post("/login", controler.login);
 	app.patch("/refresh-token", controler.refreshToken);
 	app.get("/", controler.acess);
+	app.post("/mail/forgot-pass", controler.sendEmailResetPass);
+	app.post("/reset-pass", controler.resetPass);
 }

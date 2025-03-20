@@ -17,7 +17,12 @@ export class ControlerTransactions {
     const rs = await service.pay_pix(obj);
     return res.status(201).send(rs);
   }
-  async boleto(req: FastifyRequest, res: FastifyReply) { }
+  async boleto(req: FastifyRequest, res: FastifyReply) { 
+    const obj = schemas.boleto.parse(req.body)
+
+    const rs = await service.pay_boleto(obj);
+    return res.status(201).send(rs);
+  }
   async webhook(req: FastifyRequest, res: FastifyReply) {
     const obj = req.body
     const rs = await service.webHooks(obj);

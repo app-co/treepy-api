@@ -10,7 +10,7 @@
     "dk:up": "sudo docker-compose up -d",
     "dk:stop": "sudo docker-compose stop",
     "restore": "pg_restore -U postgres -h localhost -d treepy -c backup.dump",
-    "bkup": "pg_dump -U postgres -h localhost -d trpy -F c -f backup.dump",
+    "bkup": "pg_dump -U postgres -h localhost -d treepy -F c -f backup.dump",
     "md": "yarn prisma migrate dev",
     "push": "yarn prisma studio",
     "st": "yarn prisma studio",

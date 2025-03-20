@@ -140,4 +140,16 @@ export class Controller {
 		const rs = await service.acess();
 		return res.status(201).send(rs);
 	}
+
+	async sendEmailResetPass(req: FastifyRequest, res: FastifyReply) {
+		const obj = req.body as { email: string };
+		const rs = await service.sendEmailforgot(obj);
+		return res.status(201).send(rs);
+	}
+
+	async resetPass(req: FastifyRequest, res: FastifyReply) {
+		const obj = req.body as { token: string; pas: string };
+		const rs = await service.resetPass(obj);
+		return res.status(201).send(rs);
+	}
 }

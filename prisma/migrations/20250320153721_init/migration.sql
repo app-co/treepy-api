@@ -28,6 +28,17 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "user_tokens" (
+    "id" TEXT NOT NULL,
+    "token" TEXT NOT NULL,
+    "user_id" TEXT,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "user_tokens_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Endereco" (
     "id" SERIAL NOT NULL,
     "rua" TEXT NOT NULL,
@@ -218,6 +229,9 @@ CREATE UNIQUE INDEX "User_cpfCnpj_key" ON "User"("cpfCnpj");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_customerId_key" ON "User"("customerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "user_tokens_token_key" ON "user_tokens"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Endereco_userId_key" ON "Endereco"("userId");
