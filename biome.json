@@ -27,7 +27,8 @@
 		"rules": {
 			"recommended": true,
 			"complexity": {
-				"useOptionalChain": "off"
+				"useOptionalChain": "off",
+				"noForEach": "off"
 			},
 			"suspicious": {
 				"noExplicitAny": "warn"

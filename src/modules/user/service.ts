@@ -370,9 +370,6 @@ export class UserService {
 		const forgotPassword = path.resolve(
 			__dirname,
 			"..",
-			"src",
-			"modules",
-			"user",
 			"view",
 			"forgot_password.hbs",
 		);
