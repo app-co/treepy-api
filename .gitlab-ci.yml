@@ -11,6 +11,6 @@ deploy_production:
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts  # Evita prompt ao conectar
   script:
-    - ssh $SSH_USER@$SSH_HOST "pnpm i -g pm2 && cd $PROJECT_PATH && git pull origin main && yarn && yarn bd && pm2 restart all"
+    - ssh $SSH_USER@$SSH_HOST "npm i -g pm2 && cd $PROJECT_PATH && git pull origin main && yarn && yarn bd && pm2 restart all"
   only:
     - main  # Apenas quando um push for feito na branch `main`
