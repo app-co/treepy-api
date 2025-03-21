@@ -1,30 +1,31 @@
-import { prisma } from '@/lib/prisma';
-import { AppError } from '@/shared/app-error/AppError';
-
+import { prisma } from "@/lib/prisma";
+import { AppError } from "@/shared/app-error/AppError";
 
 export class HistoricoService {
+	async create(data: { titulo: string; descricao: string; userId: string }) {
+		const historico = await prisma.historico.create({
+			data,
+		});
 
-  async create(data: { titulo: string, descricao: string, userId: string }) {
-    const historico = await prisma.historico.create({
-      data,
-    });
+		return historico;
+	}
 
-    return historico;
-  }
+	async getUserById(userId: string) {
+		const find = await prisma.historico.findMany({
+			where: { userId: userId },
+			take: 20,
+			orderBy: { created_at: "desc" },
+		});
 
-  async getUserById(userId: string) {
-    const find = await prisma.historico.findMany({ where: { userId: userId }, take: 20, orderBy: { created_at: 'asc' } });
+		if (!find) {
+			throw new AppError("Not found");
+		}
+		return find;
+	}
 
-    if (!find) {
-      throw new AppError('Not found');
-    }
-    return find
-  }
+	async listAll() {
+		const list = await prisma.historico.findMany();
 
-  async listAll() {
-
-    const list = await prisma.historico.findMany();
-
-    return list
-  }
+		return list;
+	}
 }

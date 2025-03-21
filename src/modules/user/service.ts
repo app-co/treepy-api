@@ -280,6 +280,8 @@ export class UserService {
 			role: findUser.roles!.tipo_acesso,
 		};
 
+		await redis.removeAll();
+
 		return user;
 	}
 
