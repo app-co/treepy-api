@@ -34,7 +34,6 @@ app.register(fastifyJwt, {
 app.register(cookie);
 
 app.setErrorHandler((error, request, reply) => {
-	console.log(error);
 	if (error instanceof ZodError) {
 		return reply.status(409).send({
 			error: `Erro de validação: ${error.errors[0].path[0]} ${error.errors[0].message}`,

@@ -188,7 +188,6 @@ export class ServicePayment {
 	}
 
 	async deletarWebhook(id: string) {
-		console.log(id);
 		await api.delete(`/webhooks/${id}`);
 	}
 
