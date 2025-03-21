@@ -402,7 +402,6 @@ export class UserService {
 			throw new AppError("Token inválido");
 		}
 
-		console.log(userToken);
 		const user = await prisma.user.findFirst({
 			where: { id: userToken.user_id! },
 		});

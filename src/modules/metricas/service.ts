@@ -79,8 +79,6 @@ export class ServiceMetricas {
 				.filter((t) => t.florestaId === h.id && t.isValid)
 				.reduce((ac, item) => ac + item.qnt, 0);
 
-			console.log(h.lat);
-
 			const calc = Number(calculo.toFixed(3));
 			if (calculo) {
 				jangle.push({
@@ -106,6 +104,33 @@ export class ServiceMetricas {
 			treepycashesAtivos: treepycashes,
 			treepycashesInativos: treepycashesInativos,
 			transactions: trans,
+		};
+	}
+
+	async admin() {
+		const totalUsuarios = await prisma.user.count();
+		const totalFlorestas = await prisma.florestas.count();
+		const totalParceiros = await prisma.prestador.count();
+
+		const totalTreepycashesVendidos = await prisma.treepycaches.count({
+			where: { isValid: true },
+		});
+		const totalTreepycashesDisponiveis = await prisma.florestas.findMany({
+			select: { treepycash_disponivel: true },
+		});
+
+		const TreepycashesDisponiveisTotal =
+			totalTreepycashesDisponiveis.reduce(
+				(acc, curr) => acc + curr.treepycash_disponivel,
+				0,
+			);
+
+		return {
+			usuarios: totalUsuarios,
+			florestas: totalFlorestas,
+			parceiros: totalParceiros,
+			treepycashesVendidos: totalTreepycashesVendidos,
+			treepycashesDisponiveis: TreepycashesDisponiveisTotal,
 		};
 	}
 }
