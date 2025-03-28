@@ -112,9 +112,11 @@ export class ServiceMetricas {
 		const totalFlorestas = await prisma.florestas.count();
 		const totalParceiros = await prisma.prestador.count();
 
-		const totalTreepycashesVendidos = await prisma.treepycaches.count({
-			where: { isValid: true },
-		});
+		const totalTreepycashesV = await prisma.treepycaches.findMany();
+		const totalTreepycashesVendidos = totalTreepycashesV.reduce(
+			(ac, h) => ac + h.qnt,
+			0,
+		);
 		const totalTreepycashesDisponiveis = await prisma.florestas.findMany({
 			select: { treepycash_disponivel: true },
 		});
@@ -133,4 +135,6 @@ export class ServiceMetricas {
 			treepycashesDisponiveis: TreepycashesDisponiveisTotal,
 		};
 	}
+
+	async getAllUsers() {}
 }
