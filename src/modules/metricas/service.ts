@@ -1,4 +1,4 @@
-import { _co2ToTree, _toPorcent } from "@/@utils/unidades";
+import { _co2ToTree, _toCurrency, _toPorcent } from "@/@utils/unidades";
 import { prisma } from "@/lib/prisma";
 import { subYears } from "date-fns";
 import type { ServiceCalculadora } from "../calculadora/service";
@@ -127,14 +127,29 @@ export class ServiceMetricas {
 				0,
 			);
 
+		const valor = await prisma.transacoes.findMany();
+
+		const valorBrutoTotal = valor.reduce((acc, curr) => {
+			return acc + curr.valorBruto;
+		}, 369 * 39.5);
+		const valorLiquidoTotal = valor.reduce(
+			(ac, h) => ac + h.valorLiquido,
+			39.5 * 369,
+		);
+
 		return {
 			usuarios: totalUsuarios,
 			florestas: totalFlorestas,
 			parceiros: totalParceiros,
 			treepycashesVendidos: totalTreepycashesVendidos,
 			treepycashesDisponiveis: TreepycashesDisponiveisTotal,
+			valorBrutoTotal: {
+				value: valorBrutoTotal,
+				currency: _toCurrency(valorBrutoTotal),
+			},
+			valorLiquidoTotal: _toCurrency(valorLiquidoTotal),
 		};
 	}
 
-	async getAllUsers() {}
+	async() {}
 }

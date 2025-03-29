@@ -11,6 +11,7 @@ export async function routesFloresta(app: FastifyInstance) {
 
 	app.post("/florestas/register", controler.register);
 	app.get("/florestas/byProjeto", controler.byProjeto);
+
 	app.get("/florestas", controler.getAll);
 	app.delete("/florestas/delete", controler.delete);
 }

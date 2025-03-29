@@ -16,7 +16,7 @@ datasource db {
 // 0 - admin; 
 // 1 - comum; 
 // 2 - prestador; 
-// 3 - associado
+// 3 - clientes
 
 model Roles {
   id          String   @id @default(uuid())
