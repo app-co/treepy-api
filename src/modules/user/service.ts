@@ -238,9 +238,26 @@ export class UserService {
 	}
 
 	async listAll() {
-		const list = await prisma.user.findMany();
+		let users = await redis.recover<any[]>("allUsers");
 
-		return list;
+		if (!users) {
+			users = await prisma.user.findMany({
+				include: { treepycaches: true },
+				orderBy: { nome: "asc" },
+			});
+			await redis.save("allUsers", users);
+		}
+
+		const us = users.map((h) => {
+			const tree = h.treepycaches.reduce((ac, p) => ac + p.qnt, 0);
+
+			return {
+				...h,
+				tree,
+			};
+		});
+
+		return us as IUser[];
 	}
 
 	async login({ senha, email }: TLogin) {

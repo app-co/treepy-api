@@ -31,7 +31,11 @@ export class Controller {
 		return res.status(201).send(rs);
 	}
 
-	async getAll(req: FastifyRequest, res: FastifyReply) {}
+	async getAll(req: FastifyRequest, res: FastifyReply) {
+		const rs = await service.listAll();
+
+		return res.status(201).send(rs);
+	}
 
 	async delete(req: FastifyRequest, res: FastifyReply) {}
 
