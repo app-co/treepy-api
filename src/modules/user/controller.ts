@@ -148,6 +148,7 @@ export class Controller {
 	async sendEmailResetPass(req: FastifyRequest, res: FastifyReply) {
 		const obj = req.body as { email: string };
 		const rs = await service.sendEmailforgot(obj);
+		console.log(rs);
 		return res.status(201).send(rs);
 	}
 

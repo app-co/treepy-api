@@ -389,25 +389,32 @@ export class UserService {
 		const forgotPassword = path.resolve(
 			__dirname,
 			"..",
+			"src",
+			"modules",
+			"user",
 			"view",
 			"forgot_password.hbs",
 		);
 
-		await this.sendMail.sendMail({
-			to: {
-				name: user.nome,
-				email: user.email,
-			},
-			subject: "[Treepy] Recuperação de senha",
-			templateData: {
-				file: forgotPassword,
-				variables: {
+		try {
+			await this.sendMail.sendMail({
+				to: {
 					name: user.nome,
-					token,
-					link: mailUrl,
+					email: user.email,
 				},
-			},
-		});
+				subject: "[Treepy] Recuperação de senha",
+				templateData: {
+					file: forgotPassword,
+					variables: {
+						name: user.nome,
+						token,
+						link: mailUrl,
+					},
+				},
+			});
+		} catch (error) {
+			console.log(error);
+		}
 	}
 
 	async resetPass({ token, pas }: { token: string; pas: string }) {
