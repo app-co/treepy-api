@@ -322,6 +322,8 @@ export class transactionServices {
 		try {
 			const payment = await this.payment.pix(obj);
 
+			console.log(payment);
+
 			await prisma.transacoesUser.create({
 				data: {
 					metodo: "PIX",
