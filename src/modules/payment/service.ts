@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { env } from "@/env";
 import { prisma } from "@/lib/prisma";
 import { AppError } from "@/shared/app-error/AppError";
@@ -75,6 +76,7 @@ export class ServicePayment {
 				value: value,
 				format: "ALL",
 				expirationDate: addDays(new Date(), 1),
+				externalReference: randomBytes(3).toString("hex").toUpperCase(),
 			};
 
 			const { data } = await api.post("/pix/qrCodes/static", dt);
