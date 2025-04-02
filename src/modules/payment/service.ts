@@ -81,10 +81,12 @@ export class ServicePayment {
 
 			const { data } = await api.post("/pix/qrCodes/static", dt);
 
+			console.log({ pix: data });
+
 			return {
 				payload: data.payload,
 				image: data.encodedImage,
-				orderId: data.id,
+				orderId: data.externalReference,
 			};
 		} catch (error) {
 			if (error instanceof AppError) {
