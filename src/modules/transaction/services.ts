@@ -361,7 +361,7 @@ export class transactionServices {
 		}
 	}
 	async webHooks(obj: iResponseWeebHook) {
-		console.log(obj.event);
+		console.log(obj);
 		if (
 			obj.event === "PAYMENT_CONFIRMED" ||
 			obj.event === "PAYMENT_RECEIVED"
@@ -369,8 +369,9 @@ export class transactionServices {
 			const order = await prisma.transacoesUser.findFirst({
 				where: { orderId: obj.payment.id },
 			});
-			console.log({ order });
+
 			if (!order) return;
+
 			const dt = {
 				orderId: obj.payment.id,
 				paymentType: obj.payment.id,
