@@ -69,8 +69,6 @@ export class transactionServices {
 			where: { orderId: item.orderId },
 		});
 
-		console.log({ validate: order });
-
 		if (!order) {
 			await prisma.transacoesUser.create({
 				data: {
@@ -143,6 +141,8 @@ export class transactionServices {
 				},
 			});
 		}
+
+		console.log({ validate: order });
 
 		return qntRestanteCompraTreepycashe;
 

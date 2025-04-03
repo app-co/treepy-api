@@ -81,7 +81,7 @@ export class UserService {
 		await prisma.roles.create({
 			data: {
 				userId: register.id,
-				tipo_acesso: [0, 1],
+				tipo_acesso: [1],
 			},
 		});
 
