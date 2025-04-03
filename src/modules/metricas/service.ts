@@ -118,6 +118,7 @@ export class ServiceMetricas {
 			0,
 		);
 		const totalTreepycashesDisponiveis = await prisma.florestas.findMany({
+			where: { projetoAtivo: true },
 			select: { treepycash_disponivel: true },
 		});
 
