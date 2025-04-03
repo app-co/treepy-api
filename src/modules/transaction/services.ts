@@ -69,6 +69,8 @@ export class transactionServices {
 			where: { orderId: item.orderId },
 		});
 
+		console.log({ validate: order });
+
 		if (!order) {
 			await prisma.transacoesUser.create({
 				data: {
@@ -212,6 +214,7 @@ export class transactionServices {
 		const valorUnitarioTreepycashe = await prisma.precificacao.findFirst({
 			select: { unid_trepycash: true },
 		});
+
 		if (!valorUnitarioTreepycashe) {
 			throw new AppError("Precificacao não encontrada");
 		}
@@ -361,14 +364,15 @@ export class transactionServices {
 		}
 	}
 	async webHooks(obj: iResponseWeebHook) {
-		console.log(obj);
 		if (
 			obj.event === "PAYMENT_CONFIRMED" ||
 			obj.event === "PAYMENT_RECEIVED"
 		) {
 			const order = await prisma.transacoesUser.findFirst({
-				where: { orderId: obj.payment.id },
+				where: { orderId: obj.payment.pixQrCodeId },
 			});
+
+			console.log({ order });
 
 			if (!order) return;
 
@@ -384,11 +388,21 @@ export class transactionServices {
 				data: dt,
 			});
 
+			const valorUnitarioTreepycashe =
+				await prisma.precificacao.findFirst({
+					select: { unid_trepycash: true },
+				});
+
+			if (!valorUnitarioTreepycashe) {
+				throw new AppError("Precificacao não encontrada");
+			}
+
 			await this.validationTransaction({
 				valorCompra: order.valo_compra,
 				metodo: order.metodo,
 				orderId: order.orderId,
 				userId: order.userId,
+				valorUnitario: valorUnitarioTreepycashe.unid_trepycash,
 			});
 		}
 

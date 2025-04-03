@@ -76,7 +76,6 @@ export class ServicePayment {
 				value: value,
 				format: "ALL",
 				expirationDate: addDays(new Date(), 1),
-				externalReference: randomBytes(3).toString("hex").toUpperCase(),
 			};
 
 			const { data } = await api.post("/pix/qrCodes/static", dt);
@@ -86,7 +85,7 @@ export class ServicePayment {
 			return {
 				payload: data.payload,
 				image: data.encodedImage,
-				orderId: data.externalReference,
+				orderId: data.id,
 			};
 		} catch (error) {
 			if (error instanceof AppError) {

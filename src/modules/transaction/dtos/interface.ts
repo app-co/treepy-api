@@ -1,12 +1,13 @@
 interface iResponseWeebHook {
-  id: string;
-  event: 'PAYMENT_RECEIVED' | 'PAYMENT_CONFIRMED';
-  payment: Payment;
+	id: string;
+	event: "PAYMENT_RECEIVED" | "PAYMENT_CONFIRMED";
+	payment: Payment;
 }
 
 interface Payment {
-  object: string;
-  id: string;
-  value: number
-  netValue: number
+	object: string;
+	id: string;
+	value: number;
+	netValue: number;
+	pixQrCodeId: string;
 }
