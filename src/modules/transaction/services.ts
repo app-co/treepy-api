@@ -101,7 +101,7 @@ export class transactionServices {
 				],
 			},
 			orderBy: {
-				projeto: "asc",
+				dataInicio: "asc",
 			},
 		});
 

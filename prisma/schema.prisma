@@ -75,15 +75,18 @@ model Endereco {
 }
 
 model florestas {
-  id                    Int    @id @default(autoincrement())
+  id                    Int      @id @default(autoincrement())
   nome                  String
   qnt_arvores           Int
   treepycash_disponivel Float
-  projeto               Int    @unique @default(autoincrement())
-  codigo                String @unique
+  projeto               Int      @unique @default(autoincrement())
+  codigo                String   @unique
   lat                   String
   long                  String
   status                Int
+  projetoAtivo          Boolean  @default(true)
+  dataInicio            DateTime @default(now())
+  dataFim               DateTime @default(now())
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
