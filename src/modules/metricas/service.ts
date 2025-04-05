@@ -132,10 +132,11 @@ export class ServiceMetricas {
 
 		const valorBrutoTotal = valor.reduce((acc, curr) => {
 			return acc + curr.valorBruto;
-		}, 369 * 39.5);
+		}, 347 * 39.9);
+
 		const valorLiquidoTotal = valor.reduce(
 			(ac, h) => ac + h.valorLiquido,
-			39.5 * 369,
+			39.9 * 347,
 		);
 
 		return {
