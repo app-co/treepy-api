@@ -109,6 +109,10 @@ export class ServiceMetricas {
 
 	async admin() {
 		const totalUsuarios = await prisma.user.count();
+		const totalParceirosTreepy = await prisma.user.findMany({
+			where: { parceirosTreepy: true },
+		});
+
 		const totalFlorestas = await prisma.florestas.count();
 		const totalParceiros = await prisma.prestador.count();
 
@@ -145,6 +149,7 @@ export class ServiceMetricas {
 			parceiros: totalParceiros,
 			treepycashesVendidos: totalTreepycashesVendidos,
 			treepycashesDisponiveis: TreepycashesDisponiveisTotal,
+			parceirosTreepy: totalParceirosTreepy,
 			valorBrutoTotal: {
 				value: valorBrutoTotal,
 				currency: _toCurrency(valorBrutoTotal),
