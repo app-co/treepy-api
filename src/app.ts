@@ -44,6 +44,8 @@ app.setErrorHandler((error, request, reply) => {
 		return reply.status(error.statusCode).send(error);
 	}
 
+	console.log(error);
+
 	return reply.status(500).send({
 		error: "Ocorreu um erro inesperado",
 	});

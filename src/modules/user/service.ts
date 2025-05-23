@@ -87,10 +87,11 @@ export class UserService {
 
 		const bars = path.resolve(
 			__dirname,
-			"src",
-			"shared",
-			"view",
-			"send-wellcome.hbs",
+			// "src",
+			// ""
+			// "shared",
+			// "view",
+			// "send-wellcome.hbs",
 		);
 
 		console.log({ bars });
