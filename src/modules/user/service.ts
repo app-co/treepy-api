@@ -87,6 +87,7 @@ export class UserService {
 
 		const bars = path.resolve(
 			__dirname,
+			"..",
 			// "src",
 			// ""
 			// "shared",
