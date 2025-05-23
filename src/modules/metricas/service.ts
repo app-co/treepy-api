@@ -139,7 +139,7 @@ export class ServiceMetricas {
 		const totalCompraCpf = 0;
 
 		valor.forEach((h) => {
-			const pj = 0;
+			let pj = 0;
 			const cpf = 0;
 
 			const contratoPj = contratoCompra.find((p) => p.entrada === 1);
