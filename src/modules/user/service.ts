@@ -94,6 +94,8 @@ export class UserService {
 			"send-wellcome.hbs",
 		);
 
+		console.log({ bars });
+
 		await this.sendMail.sendMail({
 			to: { name: obj.nome, email: obj.email },
 			subject: "Treepy - Boas vindas",
