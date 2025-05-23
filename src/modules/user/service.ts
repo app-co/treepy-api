@@ -59,9 +59,9 @@ export class UserService {
 			}
 		}
 
-		// if (user) {
-		// 	throw new AppError("E-mail já cadastrado");
-		// }
+		if (user) {
+			throw new AppError("E-mail já cadastrado");
+		}
 
 		const pass = await hash(obj.senha, 6);
 
@@ -70,20 +70,20 @@ export class UserService {
 			senha: pass,
 		};
 
-		// const register = await prisma.user.create({ data });
+		const register = await prisma.user.create({ data });
 
-		// this.history.create({
-		// 	titulo: "Cadastro realizado",
-		// 	descricao: "Registro na plataforma",
-		// 	userId: register.id,
-		// });
+		this.history.create({
+			titulo: "Cadastro realizado",
+			descricao: "Registro na plataforma",
+			userId: register.id,
+		});
 
-		// await prisma.roles.create({
-		// 	data: {
-		// 		userId: register.id,
-		// 		tipo_acesso: [1],
-		// 	},
-		// });
+		await prisma.roles.create({
+			data: {
+				userId: register.id,
+				tipo_acesso: [1],
+			},
+		});
 
 		const bars = path.resolve(
 			__dirname,
