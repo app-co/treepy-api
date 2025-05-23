@@ -109,18 +109,19 @@ export class ServiceMetricas {
 
 	async admin() {
 		const totalUsuarios = await prisma.user.count();
-		const totalParceirosTreepy = await prisma.user.findMany({
-			where: { parceirosTreepy: true },
-		});
-
 		const totalFlorestas = await prisma.florestas.count();
 		const totalParceiros = await prisma.prestador.count();
 
 		const totalTreepycashesV = await prisma.treepycaches.findMany();
+
 		const totalTreepycashesVendidos = totalTreepycashesV.reduce(
 			(ac, h) => ac + h.qnt,
 			0,
 		);
+		const contratoCompra = await prisma.contratoCompra.findMany({
+			where: {},
+		});
+
 		const totalTreepycashesDisponiveis = await prisma.florestas.findMany({
 			where: { projetoAtivo: true },
 			select: { treepycash_disponivel: true },
@@ -134,13 +135,34 @@ export class ServiceMetricas {
 
 		const valor = await prisma.transacoes.findMany();
 
+		const totalCompraPj = 0;
+		const totalCompraCpf = 0;
+
+		valor.forEach((h) => {
+			const pj = 0;
+			const cpf = 0;
+
+			const contratoPj = contratoCompra.find((p) => p.entrada === 1);
+
+			const contratoCpf = contratoCompra.find((p) => p.entrada === 0);
+
+			if (contratoPj && h.projetoEntrada === 1) {
+				pj = h.valorBruto + contratoPj.valorTreepycashe;
+			}
+
+			if (contratoCpf && h.projetoEntrada === 0) {
+			}
+
+			console.log(valorContrato);
+		});
+
 		const valorBrutoTotal = valor.reduce((acc, curr) => {
 			return acc + curr.valorBruto;
-		}, 28 * 39.9);
+		}, 369 * 39.9);
 
 		const valorLiquidoTotal = valor.reduce(
 			(ac, h) => ac + h.valorLiquido,
-			39.9 * 28,
+			39.5 * 369,
 		);
 
 		return {
@@ -149,7 +171,6 @@ export class ServiceMetricas {
 			parceiros: totalParceiros,
 			treepycashesVendidos: totalTreepycashesVendidos,
 			treepycashesDisponiveis: TreepycashesDisponiveisTotal,
-			parceirosTreepy: totalParceirosTreepy,
 			valorBrutoTotal: {
 				value: valorBrutoTotal,
 				currency: _toCurrency(valorBrutoTotal),
