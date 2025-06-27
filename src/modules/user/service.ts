@@ -10,6 +10,7 @@ import type { HistoricoService } from "../historico/service";
 import { api } from "../payment/api";
 import type { ICustumer, IUser } from "./dto/interface";
 import type {
+	TAddTreepycahe,
 	TEndereco,
 	TLogin,
 	TRegisterUser,
@@ -444,5 +445,51 @@ export class UserService {
 		});
 
 		return user;
+	}
+
+	async adicionarTreepycashe({
+		userId,
+		florestaId,
+		treepycashe,
+	}: TAddTreepycahe) {
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+		});
+
+		const floresta = await prisma.florestas.findUnique({
+			where: { id: florestaId },
+		});
+
+		if (!user) throw new AppError("Usuário não encontrado");
+		if (!floresta) throw new AppError("Floresta não encontrada");
+
+		await prisma.treepycaches.create({
+			data: {
+				isValid: true,
+				qnt: treepycashe,
+				florestaId,
+				userId,
+			},
+		});
+
+		await prisma.florestas.update({
+			where: { id: florestaId },
+			data: {
+				treepycash_disponivel: { decrement: treepycashe },
+			},
+		});
+
+		await prisma.historico.create({
+			data: {
+				descricao: "TreepyCashes adicionados pelos administradores.",
+				titulo: "Adição de TreepyCashe",
+				userId: userId,
+			},
+		});
+
+		await redis.invalidate("florestas");
+		await redis.invalidate("allUsers");
+
+		return "sucesso";
 	}
 }

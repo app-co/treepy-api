@@ -156,4 +156,11 @@ export class Controller {
 		const rs = await service.resetPass(obj);
 		return res.status(201).send(rs);
 	}
+
+	async addTreepycashe(req: FastifyRequest, res: FastifyReply) {
+		const obj = schemas.addTreepycashe.parse(req.body);
+
+		const rs = await service.adicionarTreepycashe(obj);
+		return res.status(201).send(rs);
+	}
 }

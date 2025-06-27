@@ -75,11 +75,11 @@ export class ServiceFloresta {
 	}
 
 	async listAll() {
-		let florestas = await this.redis.recover<IFloresta[]>("florestass");
+		let florestas = await this.redis.recover<IFloresta[]>("florestas");
 
 		if (!florestas) {
 			florestas = await prisma.florestas.findMany();
-			await this.redis.save("florestass", florestas);
+			await this.redis.save("florestas", florestas);
 		}
 		return florestas;
 	}

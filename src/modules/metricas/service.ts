@@ -10,6 +10,7 @@ interface IJangle {
 	nome: string;
 	lat: number;
 	long: number;
+	status: number;
 }
 
 export class ServiceMetricas {
@@ -87,6 +88,7 @@ export class ServiceMetricas {
 					nome: h.nome,
 					lat: Number(h.lat),
 					long: Number(h.long),
+					status: h.status,
 				});
 			}
 		});
@@ -138,31 +140,17 @@ export class ServiceMetricas {
 		const totalCompraPj = 0;
 		const totalCompraCpf = 0;
 
-		valor.forEach((h) => {
-			let pj = 0;
-			const cpf = 0;
+		const valorInicial = 369 * 39.9;
 
-			const contratoPj = contratoCompra.find((p) => p.entrada === 1);
-
-			const contratoCpf = contratoCompra.find((p) => p.entrada === 0);
-
-			if (contratoPj && h.projetoEntrada === 1) {
-				pj = h.valorBruto + contratoPj.valorTreepycashe;
-			}
-
-			if (contratoCpf && h.projetoEntrada === 0) {
-			}
-
-			console.log(valorContrato);
-		});
+		const totalVenda = totalTreepycashesVendidos * 39.9 + valorInicial;
 
 		const valorBrutoTotal = valor.reduce((acc, curr) => {
 			return acc + curr.valorBruto;
-		}, 369 * 39.9);
+		}, valorInicial);
 
 		const valorLiquidoTotal = valor.reduce(
 			(ac, h) => ac + h.valorLiquido,
-			39.5 * 369,
+			valorInicial,
 		);
 
 		return {
@@ -175,6 +163,7 @@ export class ServiceMetricas {
 				value: valorBrutoTotal,
 				currency: _toCurrency(valorBrutoTotal),
 			},
+			totalVenda: _toCurrency(totalVenda),
 			valorLiquidoTotal: _toCurrency(valorLiquidoTotal),
 		};
 	}
