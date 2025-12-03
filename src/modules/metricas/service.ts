@@ -1,6 +1,6 @@
+import { subYears } from "date-fns";
 import { _co2ToTree, _toCurrency, _toPorcent } from "@/@utils/unidades";
 import { prisma } from "@/lib/prisma";
-import { subYears } from "date-fns";
 import type { ServiceCalculadora } from "../calculadora/service";
 import type { ServiceFloresta } from "../florestas/service";
 
@@ -120,20 +120,16 @@ export class ServiceMetricas {
 			(ac, h) => ac + h.qnt,
 			0,
 		);
-		const contratoCompra = await prisma.contratoCompra.findMany({
-			where: {},
-		});
 
 		const totalTreepycashesDisponiveis = await prisma.florestas.findMany({
 			where: { projetoAtivo: true },
 			select: { treepycash_disponivel: true },
 		});
 
-		const TreepycashesDisponiveisTotal =
-			totalTreepycashesDisponiveis.reduce(
-				(acc, curr) => acc + curr.treepycash_disponivel,
-				0,
-			);
+		const TreepycashesDisponiveisTotal = totalTreepycashesDisponiveis.reduce(
+			(acc, curr) => acc + curr.treepycash_disponivel,
+			0,
+		);
 
 		const valor = await prisma.transacoes.findMany();
 
