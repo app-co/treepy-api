@@ -7,6 +7,7 @@ import { routeAppTransaction } from "@/modules/transaction/app.routes";
 import { routeTransaction } from "@/modules/transaction/routes";
 import { authUser } from "@/modules/user/routes/auth.routes";
 import { RouteUser } from "@/modules/user/routes/routes";
+import { routesUpload } from "@/modules/upload/routes";
 import { FastifyInstance } from "fastify";
 
 export async function Routes(app: FastifyInstance) {
@@ -19,4 +20,5 @@ export async function Routes(app: FastifyInstance) {
   app.register(routesMetrica)
   app.register(routesPayment)
   app.register(routesHistorico)
+  app.register(routesUpload)
 }

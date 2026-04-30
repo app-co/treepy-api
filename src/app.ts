@@ -9,9 +9,23 @@ import { AppError } from "./shared/app-error/AppError";
 import { Routes } from "./shared/routes";
 
 import formbody from "@fastify/formbody";
+import fastifyMultipart from "@fastify/multipart";
+import fastifyStatic from "@fastify/static";
+import path from "node:path";
 
 export const app = fastify();
 app.register(formbody);
+
+app.register(fastifyMultipart, {
+	limits: {
+		fileSize: 5 * 1024 * 1024, // 5MB
+	},
+});
+
+app.register(fastifyStatic, {
+	root: path.resolve(__dirname, "../../uploads"),
+	prefix: "/uploads/",
+});
 
 app.register(cors, {
 	origin: "*",

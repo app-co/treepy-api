@@ -86,27 +86,27 @@ export class UserService {
 			},
 		});
 
-		const bars = path.resolve(
-			__dirname,
-			"..",
-			"src",
-			"shared",
-			"view",
-			"send-wellcome.hbs",
-		);
+		// const bars = path.resolve(
+		// 	__dirname,
+		// 	"..",
+		// 	"src",
+		// 	"shared",
+		// 	"view",
+		// 	"send-wellcome.hbs",
+		// );
 
-		console.log({ bars });
+		// console.log({ bars });
 
-		await this.sendMail.sendMail({
-			to: { name: obj.nome, email: obj.email },
-			subject: "Treepy - Boas vindas",
-			templateData: {
-				file: bars,
-				variables: {
-					name: data.nome,
-				},
-			},
-		});
+		// await this.sendMail.sendMail({
+		// 	to: { name: obj.nome, email: obj.email },
+		// 	subject: "Treepy - Boas vindas",
+		// 	templateData: {
+		// 		file: bars,
+		// 		variables: {
+		// 			name: data.nome,
+		// 		},
+		// 	},
+		// });
 
 		return "success";
 	}
@@ -294,9 +294,7 @@ export class UserService {
 		});
 
 		const user = {
-			user: {
-				id: findUser.id,
-			},
+			user: findUser,
 			role: findUser.roles!.tipo_acesso,
 		};
 

@@ -77,6 +77,10 @@ export class Controller {
 			.send({
 				token,
 				refreshToken,
+				user: {
+					...user,
+					role,
+				},
 			});
 	}
 
