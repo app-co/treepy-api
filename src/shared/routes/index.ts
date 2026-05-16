@@ -3,6 +3,7 @@ import { routesFloresta } from "@/modules/florestas/routes";
 import { routesHistorico } from "@/modules/historico/routes";
 import { routesMetrica } from "@/modules/metricas/routes";
 import { routesPayment } from "@/modules/payment/routes";
+import { routesPrecificacao } from "@/modules/precificacao/routes";
 import { routeAppTransaction } from "@/modules/transaction/app.routes";
 import { routeTransaction } from "@/modules/transaction/routes";
 import { routesUpload } from "@/modules/upload/routes";
@@ -21,4 +22,5 @@ export async function Routes(app: FastifyInstance) {
 	app.register(routesPayment);
 	app.register(routesHistorico);
 	app.register(routesUpload);
+	app.register(routesPrecificacao);
 }
