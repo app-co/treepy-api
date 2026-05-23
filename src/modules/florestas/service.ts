@@ -5,9 +5,10 @@ import type { IFloresta } from "./dtos/interfaces";
 import type { TCreateFloresta } from "./dtos/types";
 
 export class ServiceFloresta {
-	constructor(private redis: RedisCacheProvider) {}
+	constructor(private redis: RedisCacheProvider) { }
 
 	async create(obj: Omit<TCreateFloresta, "id">) {
+
 		const floresta = await prisma.florestas.findFirst({
 			where: { codigo: obj.codigo },
 		});
@@ -45,49 +46,65 @@ export class ServiceFloresta {
 	}
 
 	async byProjeto(projeto: number) {
-		let floresta = await this.redis.recover<TCreateFloresta>(
-			`${projeto}:florestas`,
-		);
+		const key = `projeto:${projeto}`
 
-		if (!floresta) {
-			floresta = await prisma.florestas.findUnique({
-				where: { projeto },
-			});
-			await this.redis.save("florestas", floresta);
+		let floresta = await this.redis.recover<TCreateFloresta>(key);
+
+		if (floresta) {
+			return floresta
 		}
 
-		return floresta;
+
+		const find = await prisma.florestas.findUnique({
+			where: { projeto },
+		});
+		await this.redis.save(key, find);
+
+		return find;
 	}
 
 	async byId(florestaId: number) {
+		const key = `projeto:${florestaId}`
 		let floresta = await this.redis.recover<TCreateFloresta>(
 			`${florestaId}:florestas`,
 		);
 
-		if (!floresta) {
-			floresta = await prisma.florestas.findUnique({
-				where: { id: florestaId },
-			});
-			await this.redis.save("florestas", floresta);
+		if (floresta) {
+			return floresta
 		}
 
-		return floresta;
+
+		const find = await prisma.florestas.findUnique({
+			where: { id: florestaId },
+		});
+		await this.redis.save(key, find);
+
+		return find;
 	}
 
 	async listAll() {
-		let florestas = await this.redis.recover<IFloresta[]>("florestas");
+		const key = `projeto:all`
+		let florestas = await this.redis.recover<IFloresta[]>(key);
 
-		if (!florestas) {
-			florestas = await prisma.florestas.findMany();
-			await this.redis.save("florestas", florestas);
+		if (florestas) {
+			return florestas
 		}
+
+		florestas = await prisma.florestas.findMany();
+		await this.redis.save(key, florestas);
 		return florestas;
 	}
 
 	async deletefloresta(projeto: number) {
+		const floresta = await this.byId(projeto);
+
+		if (!floresta) {
+			throw new AppError("Floresta não encontrada");
+		}
+
 		await prisma.florestas.delete({ where: { projeto } });
 
-		await this.redis.invalidatePrefix(`${projeto}:florestas`);
-		await this.redis.invalidatePrefix(`florestas`);
+		await this.redis.invalidatePrefix(`${projeto}`);
+		await this.redis.invalidate(`projeto:all`);
 	}
 }
