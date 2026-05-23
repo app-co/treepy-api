@@ -18,7 +18,7 @@ export class transactionServices {
 		private user: UserService,
 		private payment: ServicePayment,
 		// private validateTransactions: ValidatedTransactions
-	) {}
+	) { }
 
 	private async registerCardToken({
 		userId,
@@ -242,13 +242,13 @@ export class transactionServices {
 				ccv: obj.cvv,
 			},
 			creditCardHolderInfo: {
-				name: user.nome,
+				name: obj.holderName,
 				email: user.email,
-				cpfCnpj: user.cpfCnpj,
-				postalCode: user.endereco.cep,
-				addressNumber: user.endereco.numero,
-				phone: "4738010919",
-				mobilePhone: "47998781877",
+				cpfCnpj: obj.cpfCnpj,
+				postalCode: obj.postalCode,
+				addressNumber: obj.addressNumber,
+				phone: obj.phone,
+				mobilePhone: obj.phone,
 			},
 			remoteIp: "",
 		};
@@ -268,7 +268,7 @@ export class transactionServices {
 			const validate = await this.validationTransaction({
 				valorCompra: obj.value,
 				metodo: "CARTAO",
-				orderId: pyment.id,
+				orderId: pyment?.id,
 				userId: obj.userId,
 				valorUnitario: valorUnitarioTreepycashe.unid_trepycash,
 			});

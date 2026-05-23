@@ -11,6 +11,10 @@ const card = z.object({
 	history: z.boolean().default(false),
 	installmentCount: z.number().default(1),
 	installmentValue: z.number(),
+	cpfCnpj: z.string().transform(h => h.replace(/\D/g, '')),
+	postalCode: z.string().transform(h => h.replace(/\D/g, '')),
+	addressNumber: z.string().transform(h => h.replace(/\D/g, '')),
+	phone: z.string().transform(h => h.replace(/\D/g, '')),
 });
 
 const payCardToken = z.object({

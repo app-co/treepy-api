@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[NOVO LEAD ESG] Treepy</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #111827;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #e5e7eb;
+    }
+    .wrapper {
+      max-width: 620px;
+      margin: 0 auto;
+      background-color: #1f2937;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #374151;
+    }
+    .header {
+      background: linear-gradient(135deg, #064e3b, #065f46);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+    }
+    .header .tag {
+      background-color: #10b981;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-right: 14px;
+      white-space: nowrap;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #d1fae5;
+      font-weight: 700;
+    }
+    .content {
+      padding: 30px 32px;
+    }
+    .alert-box {
+      background-color: #064e3b;
+      border: 1px solid #10b981;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 26px;
+      font-size: 14px;
+      color: #6ee7b7;
+    }
+    .section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: #6ee7b7;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin: 24px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #374151;
+    }
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid #374151;
+      font-size: 14px;
+    }
+    .data-row .label {
+      color: #9ca3af;
+      font-weight: 600;
+      min-width: 42%;
+    }
+    .data-row .value {
+      color: #f3f4f6;
+      text-align: right;
+      max-width: 56%;
+    }
+    .highlight {
+      background-color: #065f46;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #a7f3d0;
+      margin: 10px 0 4px;
+      line-height: 1.6;
+    }
+    .objetivos-box {
+      background-color: #1a2535;
+      border-left: 3px solid #10b981;
+      padding: 14px 18px;
+      border-radius: 0 6px 6px 0;
+      font-size: 14px;
+      color: #d1d5db;
+      line-height: 1.7;
+      margin-top: 10px;
+      font-style: italic;
+    }
+    .footer {
+      background-color: #111827;
+      padding: 20px 32px;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div style="padding: 28px 16px; background-color: #111827;">
+    <div class="wrapper">
+
+      <div class="header">
+        <span class="tag">Novo Lead</span>
+        <h1>🌿 Lead ESG Recebido</h1>
+      </div>
+
+      <div class="content">
+
+        <div class="alert-box">
+          📩 Um novo lead ESG foi cadastrado através do formulário da plataforma Treepy.<br />
+          <strong>Ação recomendada:</strong> entrar em contato em até 2 dias úteis.
+        </div>
+
+        <!-- Dados Pessoais -->
+        <div class="section-title">01 — Dados Pessoais</div>
+
+        <div class="data-row">
+          <span class="label">Nome Completo</span>
+          <span class="value">{{nomeCompleto}}</span>
+        </div>
+        <div class="data-row">
+          <span class="label">E-mail Corporativo</span>
+          <span class="value">{{emailCorporativo}}</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Cargo / Função</span>
+          <span class="value">{{cargoFuncao}}</span>
+        </div>
+
+        <!-- Dados da Organização -->
+        <div class="section-title">02 — Dados da Organização</div>
+
+        <div class="data-row">
+          <span class="label">Empresa</span>
+          <span class="value">{{nomeEmpresa}}</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Indústria</span>
+          <span class="value">{{industria}}</span>
+        </div>
+        <div class="data-row">
+          <span class="label">Porte da Empresa</span>
+          <span class="value">{{tamanhoEmpresa}}</span>
+        </div>
+
+        <!-- Interesses ESG -->
+        <div class="section-title">03 — Interesses ESG</div>
+        <div class="highlight">
+          🌱 {{interesses}}
+        </div>
+
+        <!-- Objetivos Estratégicos -->
+        <div class="section-title">Objetivos Estratégicos</div>
+        <div class="objetivos-box">
+          "{{objetivosEstrategicos}}"
+        </div>
+
+      </div>
+
+      <div class="footer">
+        Email gerado automaticamente pela plataforma Treepy · contato@treepy.com.br
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

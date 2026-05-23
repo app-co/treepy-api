@@ -242,3 +242,49 @@ model cardToken {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 }
+
+// Enum indústria para formulário ESG
+enum IndustriaESG {
+  TECNOLOGIA_SAAS
+  AGRONEGOCIO
+  INDUSTRIA
+  FINANCEIRO
+  VAREJO
+  SAUDE
+  EDUCACAO
+  ENERGIA
+  LOGISTICA
+  OUTROS
+}
+
+// Enum tamanho da empresa
+enum TamanhoEmpresa {
+  ATE_100
+  DE_101_A_500
+  DE_501_A_2000
+  ACIMA_2000
+}
+
+// Lead ESG — captura do formulário de interesse
+model LeadEsg {
+  id String @id @default(uuid())
+
+  // Dados pessoais
+  nomeCompleto    String
+  emailCorporativo String @unique
+  cargoFuncao     String
+
+  // Dados da organização
+  nomeEmpresa    String
+  industria      IndustriaESG
+  tamanhoEmpresa TamanhoEmpresa
+
+  // Interesses ESG
+  reflorestamentoNativo  Boolean @default(false)
+  neutralizacaoCO2       Boolean @default(false)
+  biodiversidadeAuditada Boolean @default(false)
+  objetivosEstrategicos  String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
