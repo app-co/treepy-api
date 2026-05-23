@@ -84,6 +84,7 @@ model florestas {
   codigo                String   @unique
   lat                   String
   long                  String
+  foto                  String?
   status                Int
   projetoAtivo          Boolean  @default(true)
   dataInicio            DateTime @default(now())
@@ -270,9 +271,9 @@ model LeadEsg {
   id String @id @default(uuid())
 
   // Dados pessoais
-  nomeCompleto    String
+  nomeCompleto     String
   emailCorporativo String @unique
-  cargoFuncao     String
+  cargoFuncao      String
 
   // Dados da organização
   nomeEmpresa    String

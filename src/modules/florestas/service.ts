@@ -90,7 +90,8 @@ export class ServiceFloresta {
 			return florestas
 		}
 
-		florestas = await prisma.florestas.findMany();
+		florestas = await prisma.florestas.findMany({
+		});
 		await this.redis.save(key, florestas);
 		return florestas;
 	}
