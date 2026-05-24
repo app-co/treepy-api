@@ -16,4 +16,12 @@ export class Controller {
 
 		return res.status(201).send(rs);
 	}
+
+	async dashUser(req: FastifyRequest, res: FastifyReply) {
+		const { ano } = req.query as { ano: string };
+		const id = req.user.sub;
+		const rs = await make.dashBoardUser(id, Number(ano));
+
+		return res.status(201).send(rs);
+	}
 }

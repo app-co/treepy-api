@@ -10,4 +10,5 @@ export async function routesMetrica(app: FastifyInstance) {
 
 	app.get("/metricas/user", controler.register);
 	app.get("/metricas/admin", { onRequest: roles(0) }, controler.admin);
+	app.get("/metricas/dash-user", controler.dashUser);
 }
