@@ -1,6 +1,7 @@
 import { _co2ToTree, _toCurrency, _toPorcent } from "@/@utils/unidades";
 import { prisma } from "@/lib/prisma";
-import { subYears } from "date-fns";
+import { format, getMonth, subYears } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import type { ServiceCalculadora } from "../calculadora/service";
 import type { ServiceFloresta } from "../florestas/service";
 import { precificacaoService } from "../precificacao/service";
@@ -15,7 +16,7 @@ interface IJangle {
 }
 
 interface IFloresta {
-	mes: string;
+	mes: number;
 	name: string;
 	value: number;
 }
@@ -204,9 +205,43 @@ export class ServiceMetricas {
 		);
 
 		const totalInvestido = totalArvoresPlantadas * precoTRY?.unid_trepycash;
-		const co_netralizado = validos.reduce((ac, curr) => ac + curr.qnt, 0);
+		const co_netralizado = (totalArvoresPlantadas * 0.9606) / 5;
 
 		const florestas: IFloresta[] = [];
+
+		const tpys = tpy.map((h) => {
+			const mes = getMonth(h.updated_at) + 1;
+			const qntMes = tpy.filter(
+				(h) => getMonth(h.updated_at) === mes - 1,
+			);
+
+			return {
+				mes,
+				qntMes: Number(
+					qntMes.reduce((acc, curr) => acc + curr.qnt, 0).toFixed(3),
+				),
+				mesName: format(new Date(ano, mes - 1), "MMM", {
+					locale: ptBR,
+				}),
+			};
+		});
+
+		months.forEach((m) => {
+			const find = tpys.find((t) => t.mes === m);
+			if (find) {
+				florestas.push({
+					mes: m,
+					name: find.mesName,
+					value: find.qntMes,
+				});
+			}
+
+			florestas.push({
+				mes: m,
+				name: format(new Date(ano, m - 1), "MMM", { locale: ptBR }),
+				value: 0,
+			});
+		});
 
 		return {
 			treepycashesValidos: validos,
