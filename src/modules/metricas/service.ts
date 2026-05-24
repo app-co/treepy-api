@@ -1,8 +1,9 @@
-import { subYears } from "date-fns";
 import { _co2ToTree, _toCurrency, _toPorcent } from "@/@utils/unidades";
 import { prisma } from "@/lib/prisma";
+import { subYears } from "date-fns";
 import type { ServiceCalculadora } from "../calculadora/service";
 import type { ServiceFloresta } from "../florestas/service";
+import { precificacaoService } from "../precificacao/service";
 
 interface IJangle {
 	codigo: string;
@@ -12,6 +13,62 @@ interface IJangle {
 	long: number;
 	status: number;
 }
+
+interface IFloresta {
+	mes: string;
+	name: string;
+	value: number;
+}
+
+/*{
+
+	const pagamentos = tpyAtivos.map((h) => {
+		const mes = getMonth(new Date(h.updated_at)) + 1;
+		const qntMes = tpyAtivos.filter(
+			(h) => getMonth(new Date(h.updated_at)) === mes - 1,
+		);
+		const qnt = Number(qntMes.reduce((ac, h) => ac + h.qnt, 0).toFixed(3));
+		return {
+			mes,
+			Mes: format(new Date(h.updated_at), "MMM", { locale: ptBR }),
+			qnt,
+			color: "red",
+		};
+	});
+
+	const charts = React.useMemo(() => {
+		const response: T[] = [];
+		month.forEach((m) => {
+			let dt = {
+				mes: m,
+				name: "",
+				value: 0,
+				color: "",
+			};
+			const find = pagamentos.find((h) => h.mes === m);
+
+			if (find) {
+				dt = {
+					mes: m,
+					name: find.Mes,
+					value: find.qnt,
+					color: find.color,
+				};
+			} else {
+				dt = {
+					mes: m,
+					name: format(new Date(2023, m - 1), "MMM", { locale: ptBR }),
+					value: 0,
+					color: "red",
+				};
+			}
+
+			response.push(dt);
+		});
+
+		return response;
+	}, [pagamentos]);
+}*/
 
 export class ServiceMetricas {
 	constructor(
@@ -109,6 +166,59 @@ export class ServiceMetricas {
 		};
 	}
 
+	async dashBoardUser(userId: string, ano: number) {
+		const months = Array.from({ length: 12 }, (_, i) => i + 1);
+		const umAnoAtras = subYears(new Date(), 1);
+		const precoTRY = await precificacaoService.get();
+		// Atualiza para falso os treepycaches com mais de 1 ano
+		await prisma.treepycaches.updateMany({
+			where: {
+				userId,
+				updated_at: { lte: umAnoAtras },
+				isValid: true,
+			},
+			data: {
+				isValid: false,
+			},
+		});
+
+		const tpy = await prisma.treepycaches.findMany({
+			where: {
+				userId: userId,
+				created_at: {
+					gte: new Date(ano, 1, 1),
+					lte: new Date(ano, 12, 31),
+				},
+			},
+			include: {
+				floresta: true,
+			},
+		});
+
+		const validos = tpy.filter((item) => item.isValid);
+		const invalidos = tpy.filter((item) => !item.isValid);
+
+		const totalArvoresPlantadas = tpy.reduce(
+			(ac, curr) => ac + curr.qnt,
+			0,
+		);
+
+		const totalInvestido = totalArvoresPlantadas * precoTRY?.unid_trepycash;
+		const co_netralizado = validos.reduce((ac, curr) => ac + curr.qnt, 0);
+
+		const florestas: IFloresta[] = [];
+
+		return {
+			treepycashesValidos: validos,
+			treepycashesInativos: invalidos,
+			totalInvestido,
+			totalArvoresPlantadas,
+			co_netralizado,
+			florestas,
+			months,
+		};
+	}
+
 	async admin() {
 		const totalUsuarios = await prisma.user.count();
 		const totalFlorestas = await prisma.florestas.count();
@@ -126,10 +236,11 @@ export class ServiceMetricas {
 			select: { treepycash_disponivel: true },
 		});
 
-		const TreepycashesDisponiveisTotal = totalTreepycashesDisponiveis.reduce(
-			(acc, curr) => acc + curr.treepycash_disponivel,
-			0,
-		);
+		const TreepycashesDisponiveisTotal =
+			totalTreepycashesDisponiveis.reduce(
+				(acc, curr) => acc + curr.treepycash_disponivel,
+				0,
+			);
 
 		const valor = await prisma.transacoes.findMany();
 
