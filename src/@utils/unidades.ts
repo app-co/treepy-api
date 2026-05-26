@@ -7,10 +7,7 @@ export function _co2ToTree(co2: number): number {
 
 	valor = (co2 * 5) / 0.9606;
 
-	const [u, c] = String(valor).split(".").map(Number);
-	const result = c > 5 ? u + 1 : u;
-
-	return Number(result.toFixed(2));
+	return Number(valor.toFixed(4));
 }
 
 export function _toPorcent(value: number): string | undefined {

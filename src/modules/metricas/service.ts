@@ -254,6 +254,44 @@ export class ServiceMetricas {
 		};
 	}
 
+	async dashAdmin(ano: number) {
+		const months = Array.from({ length: 12 }, (_, i) => i + 1);
+		const precoTRY = await precificacaoService.get();
+
+
+		const tpy = await prisma.treepycaches.findMany({
+			where: {
+				created_at: {
+					gte: new Date(ano, 1, 1),
+					lte: new Date(ano, 12, 31),
+				},
+			},
+			select: {id: true, qnt: true, updated_at: true}
+		});
+
+		const tpys = tpy.map((h) => {
+			const mes = getMonth(h.updated_at) + 1;
+			const qntMes = tpy.filter(
+				(h) => getMonth(h.updated_at) === mes - 1,
+			);
+
+			return {
+				mes,
+				qntMes: Number(
+					qntMes.reduce((acc, curr) => acc + curr.qnt, 0).toFixed(3),
+				),
+				mesName: format(new Date(ano, mes - 1), "MMM", {
+					locale: ptBR,
+				}),
+			};
+		});
+
+		const tpyVendidos = tpy.reduce((ac, h) => ac + h.qnt, 0)
+		const receita = tpyVendidos * precoTRY?.unid_trepycash
+
+		
+	}
+
 	async admin() {
 		const totalUsuarios = await prisma.user.count();
 		const totalFlorestas = await prisma.florestas.count();
