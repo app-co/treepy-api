@@ -19,6 +19,11 @@ export class Controller {
 		return res.status(201).send(rs);
 	}
 
+	async resetCash(req: FastifyRequest, res: FastifyReply) {
+		const rs = await service.resetCashe();
+		return res.status(201).send(rs);
+	}
+
 	async updateuser(req: FastifyRequest, res: FastifyReply) {
 		const userId = req.user.sub;
 		const schema = schemas.updateUser.parse({

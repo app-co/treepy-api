@@ -128,7 +128,7 @@ export class ServiceMetricas {
 		const trans = transactions.map((h) => {
 			return {
 				...h,
-				tree: (h.valo_compra / unidade?.unid_trepycash).toFixed(2),
+				tree: (h.valo_compra / unidade?.unid_trepycash).toFixed(4),
 			};
 		});
 		const jangle: IJangle[] = [];

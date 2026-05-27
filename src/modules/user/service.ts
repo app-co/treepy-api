@@ -490,4 +490,9 @@ export class UserService {
 
 		return "sucesso";
 	}
+
+	async resetCashe() {
+		await redis.removeAll();
+		return "sucesso";
+	}
 }

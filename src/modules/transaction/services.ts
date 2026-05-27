@@ -210,6 +210,7 @@ export class transactionServices {
 
 	async pay_card(obj: TCard) {
 		const user = await this.user.getUserById(obj.userId);
+		let custumer = user?.customerId
 
 		const valorUnitarioTreepycashe = await prisma.precificacao.findFirst({
 			select: { unid_trepycash: true },
@@ -219,16 +220,20 @@ export class transactionServices {
 			throw new AppError("Precificacao não encontrada");
 		}
 
-		if (!user?.endereco) {
-			throw new AppError("Endereço não configurado");
-		}
-
 		if (!user?.customerId) {
-			throw new AppError("Customer não encontrado");
-		}
+			const custu = await this.user.registerCustumer({
+				cpfCnpj: obj.cpfCnpj,
+				nome: obj.holderName,
+				email: user.email,
+			})
+
+			if(!custu) throw new AppError("Não foi possível criar customer, contate o suporte");
+
+			custumer = custu.id
+		} 
 
 		const info: TInfo = {
-			customer: user.customerId,
+			customer: custumer,
 			billingType: "CREDIT_CARD",
 			value: obj.value,
 			dueDate: format(new Date(), "yyyy-MM-dd"),

@@ -10,4 +10,5 @@ export async function RouteUser(app: FastifyInstance) {
 	app.get("/", controler.acess);
 	app.post("/mail/forgot-pass", controler.sendEmailResetPass);
 	app.post("/reset-pass", controler.resetPass);
+	app.get("/reset-cashe", controler.resetCash);
 }
