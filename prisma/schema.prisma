@@ -47,6 +47,7 @@ model User {
   pagamentos   transacoesUser[]
   Calculadora  Calculadora[]
   cardToken    cardToken[]
+  parceiro    Parceiro?
 }
 
 model user_tokens {
@@ -95,6 +96,7 @@ model florestas {
 
   treepycaches Treepycaches[]
   prestador    prestador[]
+  parceiros    Parceiro[]
 }
 
 model prestador {
@@ -285,6 +287,48 @@ model LeadEsg {
   neutralizacaoCO2       Boolean @default(false)
   biodiversidadeAuditada Boolean @default(false)
   objetivosEstrategicos  String?
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum CategoriaParceiro {
+  SERVICOS
+  PRODUTOS
+  TECNOLOGIA
+  ARQUITETURA
+  INSTITUICAO
+  AGRO
+  INVESTIMENTO
+  FINANCEIRO
+  ALIMENTACAO
+  CONSTRUCAO
+  IMOVEIS
+  TURISMO
+  MEIO_AMBIENTE
+  ESPORTES
+  BELEZA
+  EVENTOS
+  SAUDE
+  OUTROS
+}
+
+model Parceiro {
+  id String @id @default(uuid())
+
+  nomeEmpresa String
+  minDescription String
+  fullDescription  String
+  photoUrl           String?
+  treepyCashe Float
+  florestaId Int
+  siteUrl String?
+  categoria CategoriaParceiro
+
+
+  floresta   florestas @relation(fields: [florestaId], references: [id], onDelete: Cascade)
+  userId     String @unique
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt

@@ -324,6 +324,7 @@ export class transactionServices {
 			throw new Error(error);
 		}
 	}
+	
 	async pay_pix(obj: TPix) {
 		const value = obj.value / 100;
 
