@@ -172,4 +172,10 @@ export class Controller {
 		const rs = await service.adicionarTreepycashe(obj);
 		return res.status(201).send(rs);
 	}
+
+	async deletUser(req: FastifyRequest, res: FastifyReply) {
+		const userId = req.params.id as string;
+		const rs = await service.deleteUserById(userId);
+		return res.status(201).send(rs);
+	}
 }

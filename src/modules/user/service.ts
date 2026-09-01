@@ -73,6 +73,8 @@ export class UserService {
 
 		const register = await prisma.user.create({ data });
 
+		await redis.invalidate("allUsers");
+
 		this.history.create({
 			titulo: "Cadastro realizado",
 			descricao: "Registro na plataforma",
@@ -489,6 +491,15 @@ export class UserService {
 		await redis.invalidate("allUsers");
 
 		return "sucesso";
+	}
+
+	async deleteUserById(userId: string) {
+		await prisma.user.delete({
+			where: { id: userId },
+		});
+
+		await redis.invalidate("allUsers");
+		return "success";
 	}
 
 	async resetCashe() {

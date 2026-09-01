@@ -14,4 +14,5 @@ export async function authUser(app: FastifyInstance) {
 	app.post("/user/endereco", controler.updateEnd);
 
 	app.put("/user", controler.updateuser);
+	app.delete("/user/:id", controler.deletUser);
 }
