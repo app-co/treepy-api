@@ -3,6 +3,7 @@ import { routesFloresta } from "@/modules/florestas/routes";
 import { routesHistorico } from "@/modules/historico/routes";
 import { routesLeadEsg } from "@/modules/lead-esg/routes";
 import { routesMetrica } from "@/modules/metricas/routes";
+import { routesParceiro } from "@/modules/parceiro/routes";
 import { routesPayment } from "@/modules/payment/routes";
 import { routesPrecificacao } from "@/modules/precificacao/routes";
 import { routeAppTransaction } from "@/modules/transaction/app.routes";
@@ -25,4 +26,5 @@ export async function Routes(app: FastifyInstance) {
 	app.register(routesUpload);
 	app.register(routesPrecificacao);
 	app.register(routesLeadEsg);
+	app.register(routesParceiro)
 }
