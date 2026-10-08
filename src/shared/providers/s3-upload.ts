@@ -2,10 +2,15 @@ import AWS from "aws-sdk";
 import crypto from "node:crypto";
 import path from "node:path";
 
+const region = process.env.AWS_REGION as string;
+const accessKeyId = process.env.AWS_ACCESS_KEY_ID as string;
+const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY as string;
+const bucket = process.env.AWS_BUCKET as string;
+
 const s3 = new AWS.S3({
-	region: process.env.AWS_REGION,
-	accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-	secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+	region,
+	accessKeyId,
+	secretAccessKey,
 });
 
 /**
@@ -28,11 +33,11 @@ export async function uploadToS3(
 
 	const result = await s3
 		.upload({
-			Bucket: process.env.AWS_BUCKET as string,
+			Bucket: bucket,
 			Key: key,
 			Body: buffer,
 			ContentType: mimeType,
-			ACL: "public-read",
+			// ACL: "public-read",
 		})
 		.promise();
 
@@ -51,7 +56,7 @@ export async function deleteFromS3(fileUrl: string): Promise<void> {
 
 	await s3
 		.deleteObject({
-			Bucket: process.env.AWS_BUCKET as string,
+			Bucket: bucket as string,
 			Key: key,
 		})
 		.promise();
