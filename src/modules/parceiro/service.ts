@@ -85,6 +85,8 @@ export class Service {
 			orderBy: { created_at: "desc" },
 		});
 
+		console.log(list)
+
 		return list;
 	}
 
